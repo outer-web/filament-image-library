@@ -104,7 +104,7 @@ class ImageLibrary extends Page
             ->fillForm(function (array $arguments): array {
                 $image = FacadesImageLibrary::imageModel()::find($arguments['id']);
 
-                if (ImageLibrary::isSpatieTranslatable()) {
+                if (FacadesImageLibrary::isSpatieTranslatable()) {
                     return [
                         'title' => $image->getTranslations('title') ?? [],
                         'alt' => $image->getTranslations('alt') ?? [],
@@ -134,7 +134,7 @@ class ImageLibrary extends Page
 
                 $count = 0;
 
-                if (ImageLibrary::isSpatieTranslatable()) {
+                if (FacadesImageLibrary::isSpatieTranslatable()) {
                     $titleTranslationsCount = collect($image->getTranslations('title') ?? [])
                         ->filter(fn($title) => empty($title))
                         ->count();
