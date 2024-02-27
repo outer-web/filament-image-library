@@ -10,7 +10,7 @@ It adds:
 - A new field type to select an image from the image library or upload a new one.
 - A page to manage the uploaded images.
 - A cropper to crop each configured image conversion.
-- A `drag to reorder` feature.
+- A 'drag to reorder' feature.
 - Editable image html attributes: title and alt.
 - Automatically works with spatie/laravel-translatable by using our filament-translatable-fields package.
 
