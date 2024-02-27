@@ -22,7 +22,34 @@ You can install the package via composer:
 composer require outerweb/filament-image-library
 ```
 
-Configure the Outerweb/ImageLibrary package as described in the [Image Library documentation](https://github.com/outer-web/image-library).
+### Create or Update your custom theme
+
+To comply with the recommended way of styling a Filament plugin, you will have to **create a custom theme**.
+You can follow the steps described [here](https://filamentphp.com/docs/3.x/panels/themes#creating-a-custom-theme) in the offical documentation.
+
+This is done so that all tailwind classes defined in the plugin will get bundles in your custom theme. So it will fit perfectly within your theme.
+
+After that, you may add the following to the `resources/css/filament/filament/tailwind.config.js` file in the `content` array:
+
+```js
+import preset from '../../../../vendor/filament/filament/tailwind.config.preset'
+
+export default {
+    presets: [preset],
+    content: [
+        // ...
+        './vendor/outerweb/filament-image-library/resources/views/**/*.blade.php',
+    ],
+}
+```
+
+You can then run `npm run build` to build your custom theme's assets.
+
+### Configure the underlying outerweb/image-library
+
+Configure the `outerweb/image-library` package as described in the [Image Library documentation](https://github.com/outer-web/image-library).
+
+### Add the plugin to your panel
 
 Add the plugin to your desired Filament panel:
 
