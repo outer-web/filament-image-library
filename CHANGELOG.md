@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 1.1.0 - 2024-02-26
+
+### Fixed
+
+- Fixed a bug where the `ImageLibrary` facade was not aliased correctly on the image library page.
+
 ## 1.0.1 - 2024-02-26
 
 ### Changed
