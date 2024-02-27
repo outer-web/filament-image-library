@@ -1,0 +1,21 @@
+{
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev:js": "node bin/build.js --dev",
+        "build:js": "node bin/build.js",
+        "purge": "filament-purge -i dist/css/filament-image-library.css -o dist/css/filament-image-library.css -v 3.x",
+        "dev": "npm-run-all --parallel dev:*",
+        "build": "npm-run-all build:*"
+    },
+    "devDependencies": {
+        "@awcodes/filament-plugin-purge": "^1.1.1",
+        "@babel/runtime": "^7.15.3",
+        "esbuild": "^0.19.2",
+        "npm-run-all": "^4.1.5"
+    },
+    "dependencies": {
+        "cropperjs": "^1.6.1",
+        "sortablejs": "^1.15.2"
+    }
+}
