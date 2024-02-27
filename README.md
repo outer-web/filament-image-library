@@ -22,7 +22,7 @@ You can install the package via composer:
 composer require outerweb/filament-image-library
 ```
 
-Configure the Outerweb/ImageLibrary package as described in the [Settings documentation](https://github.com/outer-web/image-library).
+Configure the Outerweb/ImageLibrary package as described in the [Image Library documentation](https://github.com/outer-web/image-library).
 
 Add the plugin to your desired Filament panel:
 
