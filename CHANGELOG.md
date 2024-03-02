@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 1.2.0 - 2024-03-02
+
+### Fixed
+
+- Fixed a bug where getRelationsShip() would be called on a non existing modelInstance.
+
 ## 1.1.0 - 2024-02-26
 
 ### Fixed

@@ -618,9 +618,9 @@ class ImageLibraryPicker extends Field
             });
     }
 
-    public function getRelationship(): BelongsToMany
+    public function getRelationship(): ?BelongsToMany
     {
-        return $this->getModelInstance()->{$this->getName()}();
+        return $this->getModelInstance()?->{$this->getName()}();
     }
 
     public function getState(): mixed
@@ -629,11 +629,14 @@ class ImageLibraryPicker extends Field
 
         if ($this->getAllowsMultiple() && $state === null) {
             $relationship = $this->getRelationship();
-            $results = $relationship->getResults();
 
-            $this->state($results
-                ->pluck($relationship->getRelatedKeyName())
-                ->toArray());
+            if ($relationship instanceof BelongsToMany) {
+                $results = $relationship->getResults();
+
+                $this->state($results
+                    ->pluck($relationship->getRelatedKeyName())
+                    ->toArray());
+            }
         }
 
         return $state;
