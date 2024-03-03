@@ -50,6 +50,7 @@ class FilamentImageLibraryServiceProvider extends PackageServiceProvider
                 ->label('filament-image-library::translations.conversions.labels.thumbnail')
                 ->translateLabel()
                 ->aspectRatio('4:3')
+                ->createSync()
         );
     }
 }

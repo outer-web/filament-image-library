@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 1.4.0 - 2024-03-04
+
+### Added
+
+- Use the `Outerweb\ImageLibrary\Entities\ConversionDefinition::createSync()` method to inform the image library to dispatch the generateConversion job synchronously. This is done to make the filament thumbnail generation conversion visible immediately after uploading an image when using a async queue driver.
+
 ## 1.3.0 - 2024-03-04
 
 ### Fixed
