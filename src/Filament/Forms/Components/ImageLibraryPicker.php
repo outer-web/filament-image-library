@@ -358,7 +358,7 @@ class ImageLibraryPicker extends Field
                     $component->getStatePath(false),
                     $this->getAllowsMultiple()
                     ? collect($component->getState())->concat($imageIds)->toArray()
-                    : $imageIds[0]
+                    : Arr::wrap($imageIds[0])
                 );
 
                 Notification::make()

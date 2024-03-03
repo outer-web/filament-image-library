@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 1.3.0 - 2024-03-04
+
+### Fixed
+
+- Fixed a bug where uploading a single image from the imagePicker returned a string instead of an array.
+
 ## 1.2.1 - 2024-03-03
 
 ### Changed
