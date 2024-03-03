@@ -49,7 +49,7 @@
 								data-reorder-handle
 							/>
 						@endif
-						@if ($getAllowsImageCrop())
+						@if ($getAllowsImageCrop() && count($getAllowedConversionDefinitions()) > 0)
 							{{ $getAction('crop')([
 							    'id' => $image->id,
 							]) }}

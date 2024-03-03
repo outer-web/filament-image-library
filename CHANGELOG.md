@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 1.2.1 - 2024-03-03
+
+### Changed
+
+- Do not show crop button if no conversions are available (due to filtering the conversions)
+
 ## 1.2.0 - 2024-03-02
 
 ### Fixed
