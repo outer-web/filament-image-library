@@ -32,15 +32,15 @@ This is done so that all tailwind classes defined in the plugin will get bundles
 After that, you may add the following to the `resources/css/filament/filament/tailwind.config.js` file in the `content` array:
 
 ```js
-import preset from '../../../../vendor/filament/filament/tailwind.config.preset'
+import preset from "../../../../vendor/filament/filament/tailwind.config.preset";
 
 export default {
-    presets: [preset],
-    content: [
-        // ...
-        './vendor/outerweb/filament-image-library/resources/views/**/*.blade.php',
-    ],
-}
+  presets: [preset],
+  content: [
+    // ...
+    "./vendor/outerweb/filament-image-library/resources/views/**/*.blade.php",
+  ],
+};
 ```
 
 You can then run `npm run build` to build your custom theme's assets.
@@ -94,6 +94,29 @@ In the example above, the user will be able to upload images to the `public` dis
 The UI will show the disk name as `Public images`. You can also add a translation for the disk name.
 
 By default, the plugin will enable the public disk if you didn't specify any allowed disks.
+
+### Set the navigation sort of the image library page
+
+You can set the navigation sort of the image library page by adding the `navigationSort` method:
+
+```php
+use OuterWeb\FilamentImageLibrary\Filament\Plugins\FilamentImageLibraryPlugin;
+
+class FilamentPanelProvider extends PanelProvider
+{
+    public function panel(Panel $panel): Panel
+    {
+        return $panel
+            // ...
+            ->plugins([
+                FilamentImageLibraryPlugin::make()
+                    ->navigationSort(10),
+            ]);
+    }
+}
+```
+
+This will let you customize the index of the image library page in the navigation.
 
 ## Usage
 

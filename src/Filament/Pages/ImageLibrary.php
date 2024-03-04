@@ -10,6 +10,7 @@ use Filament\Pages\Page;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Outerweb\FilamentImageLibrary\Filament\Forms\Components\ImageLibraryCropper;
 use Outerweb\FilamentImageLibrary\Filament\Forms\Components\ImageLibraryPicker;
+use Outerweb\FilamentImageLibrary\Filament\Plugins\FilamentImageLibraryPlugin;
 use Outerweb\FilamentTranslatableFields\Filament\Plugins\FilamentTranslatableFieldsPlugin;
 use Outerweb\ImageLibrary\Facades\ImageLibrary as FacadesImageLibrary;
 use Outerweb\ImageLibrary\Models\ImageConversion;
@@ -23,6 +24,11 @@ class ImageLibrary extends Page
     public static function getNavigationLabel(): string
     {
         return __('filament-image-library::translations.page.navigation_label');
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return FilamentImageLibraryPlugin::get()->getNavigationSort();
     }
 
     public function getLayout(): string
@@ -136,11 +142,11 @@ class ImageLibrary extends Page
 
                 if (FacadesImageLibrary::isSpatieTranslatable()) {
                     $titleTranslationsCount = collect($image->getTranslations('title') ?? [])
-                        ->filter(fn($title) => empty($title))
+                        ->filter(fn($title) => empty ($title))
                         ->count();
 
                     $altTranslationsCount = collect($image->getTranslations('alt') ?? [])
-                        ->filter(fn($alt) => empty($alt))
+                        ->filter(fn($alt) => empty ($alt))
                         ->count();
 
                     $supportedLocalesCount = count(FilamentTranslatableFieldsPlugin::get()->getSupportedLocales());
@@ -156,11 +162,11 @@ class ImageLibrary extends Page
                     return $count > 0 ? $count : '';
                 }
 
-                if (empty($image->title)) {
+                if (empty ($image->title)) {
                     $count++;
                 }
 
-                if (empty($image->alt)) {
+                if (empty ($image->alt)) {
                     $count++;
                 }
 

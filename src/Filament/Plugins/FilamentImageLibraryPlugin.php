@@ -11,6 +11,8 @@ class FilamentImageLibraryPlugin implements Plugin
     protected array $allowedDisks = [];
     protected string $defaultDisk = 'public';
 
+    protected ?int $navigationSort = null;
+
     public static function make(): static
     {
         return app(static::class);
@@ -56,6 +58,13 @@ class FilamentImageLibraryPlugin implements Plugin
         return $this;
     }
 
+    public function navigationSort(?int $sort): static
+    {
+        $this->navigationSort = $sort;
+
+        return $this;
+    }
+
     public function getAllowedDisks(): array
     {
         if (empty($this->allowedDisks)) {
@@ -70,5 +79,10 @@ class FilamentImageLibraryPlugin implements Plugin
     public function getDefaultDisk(): string
     {
         return $this->defaultDisk;
+    }
+
+    public function getNavigationSort(): ?int
+    {
+        return $this->navigationSort;
     }
 }

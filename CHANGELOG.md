@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 1.5.0 - 2024-03-04
+
+### Added
+
+- Added the `navigationSort(?int $sort)` method to the plugin to allow you to sort the image library page in your navigation.
+
 ## 1.4.0 - 2024-03-04
 
 ### Added
