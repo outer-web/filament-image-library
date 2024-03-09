@@ -330,6 +330,15 @@ ImageLibraryEntry::make('image')
 
 This will display the selected images in the infolist. The argument of the `make` method is the name of the relation in your model.
 
+If you would like the display the image(s) of a nested relation, you can use the dot notation:
+
+```php
+use Outerweb\FilamentImageLibrary\Filament\Infolists\Components\ImageLibraryEntry;
+
+ImageLibraryEntry::make('seoData.image')
+    ->label('Image(s)'),
+```
+
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.

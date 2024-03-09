@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 2.1.0 - 2024-03-09
+
+### Changed
+
+- `ImageLibraryEntry` can now handle relation data too by supplying the nested attribute or method name using the dot notation.
+
 ## 2.0.0 - 2024-03-09
 
 ### Added
