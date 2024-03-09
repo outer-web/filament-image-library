@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 2.0.0 - 2024-03-09
+
+### Added
+
+- Added the `ImageLibraryEntry` infolist component to display the selected images.
+
 ## 1.5.0 - 2024-03-04
 
 ### Added

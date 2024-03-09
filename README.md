@@ -317,6 +317,19 @@ When working with multiple images, you will typically work with a belongsToMany 
 We already included code to sync the images to the pivot table.
 If you want to order the images, you can add a column to the pivot table to store the order..
 
+### Displaying the selected images in the Infolist
+
+You can display the selected images in the infolist by adding the `ImageLibraryEntry` infolist component:
+
+```php
+use Outerweb\FilamentImageLibrary\Filament\Infolists\Components\ImageLibraryEntry;
+
+ImageLibraryEntry::make('image')
+    ->label('Image(s)'),
+```
+
+This will display the selected images in the infolist. The argument of the `make` method is the name of the relation in your model.
+
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
