@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 2.2.1 - 2024-03-12
+
+### Added
+
+- Added support for Laravel 11.
+
 ## 2.1.0 - 2024-03-09
 
 ### Changed
