@@ -2,7 +2,7 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
-## 2.2.1 - 2024-03-12
+## 2.1.1 - 2024-03-12
 
 ### Added
 
