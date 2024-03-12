@@ -56,145 +56,145 @@ class ImageLibraryPicker extends Field
 
     protected string|Closure|null $relationOrderColumn = null;
 
-    public function multiple(bool|Closure $multiple = true): static
+    public function multiple(bool|Closure $multiple = true) : static
     {
         $this->multiple = $multiple;
 
         return $this;
     }
 
-    public function disableUpload(bool|Closure $disablesUpload = true): static
+    public function disableUpload(bool|Closure $disablesUpload = true) : static
     {
         $this->disableUpload = $disablesUpload;
 
         return $this;
     }
 
-    public function disableExisting(bool|Closure $disablesExisting = true): static
+    public function disableExisting(bool|Closure $disablesExisting = true) : static
     {
         $this->disableExisting = $disablesExisting;
 
         return $this;
     }
 
-    public function disableImageEdit(bool|Closure $disablesImageEdit = true): static
+    public function disableImageEdit(bool|Closure $disablesImageEdit = true) : static
     {
         $this->disableImageEdit = $disablesImageEdit;
 
         return $this;
     }
 
-    public function disableOrderingImages(bool|Closure $disablesOrderingImages = true): static
+    public function disableOrderingImages(bool|Closure $disablesOrderingImages = true) : static
     {
         $this->disableOrderingImages = $disablesOrderingImages;
 
         return $this;
     }
 
-    public function disableImageCrop(bool|Closure $disablesImageCrop = true): static
+    public function disableImageCrop(bool|Closure $disablesImageCrop = true) : static
     {
         $this->disableImageCrop = $disablesImageCrop;
 
         return $this;
     }
 
-    public function disableImageDeselect(bool|Closure $disablesImageDeselect = true): static
+    public function disableImageDeselect(bool|Closure $disablesImageDeselect = true) : static
     {
         $this->disableImageDeselect = $disablesImageDeselect;
 
         return $this;
     }
 
-    public function disableImageEditBadges(bool|Closure $disablesImageEditBadges = true): static
+    public function disableImageEditBadges(bool|Closure $disablesImageEditBadges = true) : static
     {
         $this->disableImageEditBadges = $disablesImageEditBadges;
 
         return $this;
     }
 
-    public function existingItemsPerPage(int $perPage): static
+    public function existingItemsPerPage(int $perPage) : static
     {
         $this->existingItemsPerPage = $perPage;
 
         return $this;
     }
 
-    public function filteredConversionDefinitions(array|Closure $filteredConversionDefinitions): static
+    public function filteredConversionDefinitions(array|Closure $filteredConversionDefinitions) : static
     {
         $this->filteredConversionDefinitions = $filteredConversionDefinitions;
 
         return $this;
     }
 
-    public function disabledConversionDefinitions(array|Closure $disabledConversionDefinitions): static
+    public function disabledConversionDefinitions(array|Closure $disabledConversionDefinitions) : static
     {
         $this->disabledConversionDefinitions = $disabledConversionDefinitions;
 
         return $this;
     }
 
-    public function enablePackageConversionDefinitions(bool|Closure $enablePackageConversionDefinitions = true): static
+    public function enablePackageConversionDefinitions(bool|Closure $enablePackageConversionDefinitions = true) : static
     {
         $this->enablePackageConversionDefinitions = $enablePackageConversionDefinitions;
 
         return $this;
     }
 
-    public function relationOrderColumn(string|Closure $relationOrderColumn): static
+    public function relationOrderColumn(string|Closure $relationOrderColumn) : static
     {
         $this->relationOrderColumn = $relationOrderColumn;
 
         return $this;
     }
 
-    public function getAllowsMultiple(): bool
+    public function getAllowsMultiple() : bool
     {
         return (bool) $this->evaluate($this->multiple);
     }
 
-    public function getAllowsUpload(): bool
+    public function getAllowsUpload() : bool
     {
-        return !(bool) $this->evaluate($this->disableUpload);
+        return ! (bool) $this->evaluate($this->disableUpload);
     }
 
-    public function getAllowsExisting(): bool
+    public function getAllowsExisting() : bool
     {
-        return !(bool) $this->evaluate($this->disableExisting);
+        return ! (bool) $this->evaluate($this->disableExisting);
     }
 
-    public function getAllowsImageEdit(): bool
+    public function getAllowsImageEdit() : bool
     {
-        return !(bool) $this->evaluate($this->disableImageEdit);
+        return ! (bool) $this->evaluate($this->disableImageEdit);
     }
 
-    public function getAllowsOrderingImages(): bool
+    public function getAllowsOrderingImages() : bool
     {
-        return !(bool) $this->evaluate($this->disableOrderingImages) && $this->getAllowsMultiple();
+        return ! (bool) $this->evaluate($this->disableOrderingImages) && $this->getAllowsMultiple();
     }
 
-    public function getAllowsImageCrop(): bool
+    public function getAllowsImageCrop() : bool
     {
-        return !(bool) $this->evaluate($this->disableImageCrop);
+        return ! (bool) $this->evaluate($this->disableImageCrop);
     }
 
-    public function getAllowsImageDeselect(): bool
+    public function getAllowsImageDeselect() : bool
     {
-        return !(bool) $this->evaluate($this->disableImageDeselect);
+        return ! (bool) $this->evaluate($this->disableImageDeselect);
     }
 
-    public function getAllowsImageEditBadges(): bool
+    public function getAllowsImageEditBadges() : bool
     {
-        return !(bool) $this->evaluate($this->disableImageEditBadges);
+        return ! (bool) $this->evaluate($this->disableImageEditBadges);
     }
 
-    public function getRelationOrderColumn(): ?string
+    public function getRelationOrderColumn() : ?string
     {
         $value = $this->evaluate($this->relationOrderColumn);
 
         return $value === null ? null : (string) $value;
     }
 
-    public function getFilteredConversionDefinitions(): array
+    public function getFilteredConversionDefinitions() : array
     {
         $definitions = (array) $this->evaluate($this->filteredConversionDefinitions);
 
@@ -207,11 +207,11 @@ class ImageLibraryPicker extends Field
             ->toArray();
     }
 
-    public function getDisabledConversionDefinitions(): array
+    public function getDisabledConversionDefinitions() : array
     {
         $definitions = (array) $this->evaluate($this->disabledConversionDefinitions);
 
-        if (!$this->getEnablePackageConversionDefinitions()) {
+        if (! $this->getEnablePackageConversionDefinitions()) {
             $definitions = array_merge($definitions, [
                 FilamentImageLibraryServiceProvider::FILAMENT_THUMBNAIL_CONVERSION_DEFINITION,
             ]);
@@ -226,12 +226,12 @@ class ImageLibraryPicker extends Field
             ->toArray();
     }
 
-    public function getEnablePackageConversionDefinitions(): bool
+    public function getEnablePackageConversionDefinitions() : bool
     {
         return (bool) $this->evaluate($this->enablePackageConversionDefinitions);
     }
 
-    public function getImages(): Collection
+    public function getImages() : Collection
     {
         $state = array_filter(Arr::wrap($this->getState()));
 
@@ -244,7 +244,7 @@ class ImageLibraryPicker extends Field
             ->get();
     }
 
-    public function getAllowedConversionDefinitions(): array
+    public function getAllowedConversionDefinitions() : array
     {
         $conversionDefinitions = ImageLibrary::getConversionDefinitions()
             ->map(function (ConversionDefinition $conversionDefinition) {
@@ -260,7 +260,7 @@ class ImageLibraryPicker extends Field
         $conversionDefinitions = $conversionDefinitions
             ->when(count($this->getDisabledConversionDefinitions()) > 0, function (Collection $conversionDefinitions) {
                 return $conversionDefinitions->filter(function (string $name) {
-                    return !in_array($name, $this->getDisabledConversionDefinitions());
+                    return ! in_array($name, $this->getDisabledConversionDefinitions());
                 });
             })
             ->when(count($this->getFilteredConversionDefinitions()) > 0, function (Collection $conversionDefinitions) {
@@ -272,24 +272,24 @@ class ImageLibraryPicker extends Field
         return $conversionDefinitions->toArray();
     }
 
-    public function allowsImageConversion(ImageConversion $conversion): bool
+    public function allowsImageConversion(ImageConversion $conversion) : bool
     {
         return in_array($conversion->definition->name, $this->getAllowedConversionDefinitions());
     }
 
-    protected function setUp(): void
+    protected function setUp() : void
     {
         parent::setUp();
 
         $this->registerActions([
-            fn(self $component): Action => $component->getUploadAction(),
-            fn(self $component): Action => $component->getSelectExisting(),
-            fn(self $component): Action => $component->getCropAction(),
-            fn(self $component): Action => $component->getEditAction(),
-            fn(self $component): Action => $component->getDeselectAction(),
+            fn (self $component) : Action => $component->getUploadAction(),
+            fn (self $component) : Action => $component->getSelectExisting(),
+            fn (self $component) : Action => $component->getCropAction(),
+            fn (self $component) : Action => $component->getEditAction(),
+            fn (self $component) : Action => $component->getDeselectAction(),
         ]);
 
-        $this->afterStateHydrated(static function (self $component, $state): void {
+        $this->afterStateHydrated(static function (self $component, $state) : void {
             $component->state(Arr::wrap($state ?? []));
         });
 
@@ -301,8 +301,8 @@ class ImageLibraryPicker extends Field
             return array_values(array_filter($state))[0] ?? null;
         };
 
-        $this->saveRelationshipsUsing = $this->saveRelationshipsUsing ?? function (self $component, $state): void {
-            if (!$component->getAllowsMultiple()) {
+        $this->saveRelationshipsUsing = $this->saveRelationshipsUsing ?? function (self $component, $state) : void {
+            if (! $component->getAllowsMultiple()) {
                 return;
             }
 
@@ -320,7 +320,7 @@ class ImageLibraryPicker extends Field
         };
     }
 
-    protected function getUploadAction(): Action
+    protected function getUploadAction() : Action
     {
         return Action::make('upload')
             ->label(__('filament-image-library::translations.actions.upload'))
@@ -330,8 +330,8 @@ class ImageLibraryPicker extends Field
                 Select::make('disk')
                     ->required()
                     ->label(__('filament-image-library::translations.form.labels.disk'))
-                    ->options(fn() => FilamentImageLibraryPlugin::get()->getAllowedDisks())
-                    ->default(fn() => FilamentImageLibraryPlugin::get()->getDefaultDisk()),
+                    ->options(fn () => FilamentImageLibraryPlugin::get()->getAllowedDisks())
+                    ->default(fn () => FilamentImageLibraryPlugin::get()->getDefaultDisk()),
                 FileUpload::make('images')
                     ->label(
                         $this->getAllowsMultiple()
@@ -340,8 +340,8 @@ class ImageLibraryPicker extends Field
                     )
                     ->required()
                     ->live()
-                    ->multiple(fn() => $this->getAllowsMultiple())
-                    ->saveUploadedFileUsing(function (TemporaryUploadedFile $file, Get $get): int {
+                    ->multiple(fn () => $this->getAllowsMultiple())
+                    ->saveUploadedFileUsing(function (TemporaryUploadedFile $file, Get $get) : int {
                         $file = new UploadedFile(
                             $file->getRealPath(),
                             $file->getFilename(),
@@ -351,7 +351,7 @@ class ImageLibraryPicker extends Field
                         return ImageLibrary::upload($file, $get('disk'))->id;
                     }),
             ])
-            ->action(function (array $data, Set $set, Component $component): void {
+            ->action(function (array $data, Set $set, Component $component) : void {
                 $imageIds = Arr::wrap($data['images'] ?? []);
 
                 $set(
@@ -373,7 +373,7 @@ class ImageLibraryPicker extends Field
             ->closeModalByClickingAway(false);
     }
 
-    protected function getSelectExisting(): Action
+    protected function getSelectExisting() : Action
     {
         return Action::make('selectExisting')
             ->label(__('filament-image-library::translations.actions.select_existing'))
@@ -383,13 +383,13 @@ class ImageLibraryPicker extends Field
             ->form([
                 ImageLibrarySelectExisting::make('images')
                     ->hiddenLabel()
-                    ->multiple(fn() => $this->getAllowsMultiple())
+                    ->multiple(fn () => $this->getAllowsMultiple())
                     ->itemsPerPage($this->existingItemsPerPage),
             ])
-            ->fillForm(fn(Component $component): array => [
+            ->fillForm(fn (Component $component) : array => [
                 'images' => $component->getState(),
             ])
-            ->action(function (array $data, Set $set, Component $component): void {
+            ->action(function (array $data, Set $set, Component $component) : void {
                 $imageIds = $data['images'];
 
                 if ($this->getAllowsMultiple()) {
@@ -409,7 +409,7 @@ class ImageLibraryPicker extends Field
             ->closeModalByClickingAway(false);
     }
 
-    public function getEditAction(): Action
+    public function getEditAction() : Action
     {
         return Action::make('edit')
             ->hiddenLabel()
@@ -430,7 +430,7 @@ class ImageLibraryPicker extends Field
                     ->nullable()
                     ->translatable(config('image-library.spatie_translatable')),
             ])
-            ->fillForm(function (array $arguments): array {
+            ->fillForm(function (array $arguments) : array {
                 $image = ImageLibrary::imageModel()::find($arguments['id']);
 
                 if (ImageLibrary::isSpatieTranslatable()) {
@@ -445,7 +445,7 @@ class ImageLibraryPicker extends Field
                     'alt' => $image->alt,
                 ];
             })
-            ->action(function (array $data, array $arguments): void {
+            ->action(function (array $data, array $arguments) : void {
                 $image = ImageLibrary::imageModel()::find($arguments['id']);
 
                 $image->update([
@@ -458,8 +458,8 @@ class ImageLibraryPicker extends Field
                     ->title(__('filament-image-library::translations.notifications.image_updated.title'))
                     ->send();
             })
-            ->badge(function (array $arguments): string {
-                if (!$this->getAllowsImageEditBadges()) {
+            ->badge(function (array $arguments) : string {
+                if (! $this->getAllowsImageEditBadges()) {
                     return '';
                 }
 
@@ -469,11 +469,11 @@ class ImageLibraryPicker extends Field
 
                 if (ImageLibrary::isSpatieTranslatable()) {
                     $titleTranslationsCount = collect($image->getTranslations('title') ?? [])
-                        ->filter(fn($title) => !blank($title))
+                        ->filter(fn ($title) => ! blank($title))
                         ->count();
 
                     $altTranslationsCount = collect($image->getTranslations('alt') ?? [])
-                        ->filter(fn($alt) => !blank($alt))
+                        ->filter(fn ($alt) => ! blank($alt))
                         ->count();
 
                     $supportedLocalesCount = count(FilamentTranslatableFieldsPlugin::get()->getSupportedLocales());
@@ -503,7 +503,7 @@ class ImageLibraryPicker extends Field
             ->closeModalByClickingAway(false);
     }
 
-    public function getCropAction(): Action
+    public function getCropAction() : Action
     {
         return Action::make('crop')
             ->hiddenLabel()
@@ -512,7 +512,7 @@ class ImageLibraryPicker extends Field
             ->modalSubmitActionLabel(__('filament-image-library::translations.actions.save'))
             ->color('gray')
             ->icon('heroicon-o-scissors')
-            ->fillForm(function (array $arguments): array {
+            ->fillForm(function (array $arguments) : array {
                 $image = ImageLibrary::imageModel()::find($arguments['id']);
 
                 return $this->getImageConversions($image)
@@ -552,13 +552,13 @@ class ImageLibraryPicker extends Field
                         }),
                 ];
             })
-            ->action(function (array $data, array $arguments): void {
+            ->action(function (array $data, array $arguments) : void {
                 $image = ImageLibrary::imageModel()::find($arguments['id']);
 
                 foreach ($data as $key => $value) {
                     $conversion = $image->conversions->firstWhere('id', $value['id']);
 
-                    if (!$conversion) {
+                    if (! $conversion) {
                         continue;
                     }
 
@@ -581,7 +581,7 @@ class ImageLibraryPicker extends Field
             ->closeModalByClickingAway(false);
     }
 
-    public function getDeselectAction(): Action
+    public function getDeselectAction() : Action
     {
         return Action::make('deselect')
             ->hiddenLabel()
@@ -589,14 +589,14 @@ class ImageLibraryPicker extends Field
             ->tooltip(__('filament-image-library::translations.actions.deselect'))
             ->color('danger')
             ->icon('heroicon-o-x-mark')
-            ->action(function (array $arguments, Set $set, Component $component): void {
+            ->action(function (array $arguments, Set $set, Component $component) : void {
                 $imageIds = Arr::wrap($component->getState());
                 $idToDeselect = $arguments['id'];
 
                 if ($this->getAllowsMultiple()) {
                     $set(
                         $component->getStatePath(false),
-                        collect($imageIds)->filter(fn($id) => (string) $id !== (string) $idToDeselect)->toArray()
+                        collect($imageIds)->filter(fn ($id) => (string) $id !== (string) $idToDeselect)->toArray()
                     );
 
                     return;
@@ -610,7 +610,7 @@ class ImageLibraryPicker extends Field
             ->closeModalByClickingAway(false);
     }
 
-    public function getImageConversions(Image $image): Collection
+    public function getImageConversions(Image $image) : Collection
     {
         return $image->conversions
             ->filter(function (ImageConversion $conversion) {
@@ -618,12 +618,22 @@ class ImageLibraryPicker extends Field
             });
     }
 
-    public function getRelationship(): ?BelongsToMany
+    public function getRelationship() : ?BelongsToMany
     {
-        return $this->getModelInstance()?->{$this->getName()}();
+        $modelInstance = $this->getModelInstance();
+
+        if (is_null($modelInstance)) {
+            return null;
+        }
+
+        if (! method_exists($this->getModelInstance(), $this->getName())) {
+            return null;
+        }
+
+        return $this->getModelInstance()->{$this->getName()}();
     }
 
-    public function getState(): mixed
+    public function getState() : mixed
     {
         $state = parent::getState();
 

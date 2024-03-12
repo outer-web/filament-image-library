@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 2.2.0 - 2024-03-12
+
+### Fixed
+
+- Fixed a problem where the `ImageLibraryPicker` would throw an exception when the model instance did not have the specified method. This is not always necessary, so it will now return null if the method does not exist.
+
 ## 2.1.1 - 2024-03-12
 
 ### Added
