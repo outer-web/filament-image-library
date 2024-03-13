@@ -302,7 +302,7 @@ class ImageLibraryPicker extends Field
         };
 
         $this->saveRelationshipsUsing = $this->saveRelationshipsUsing ?? function (self $component, $state) : void {
-            if (! $component->getAllowsMultiple()) {
+            if (! $component->getAllowsMultiple() || is_null($component->getRelationShip())) {
                 return;
             }
 

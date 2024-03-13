@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 2.3.0 - 2024-03-13
+
+### Fixed
+
+- Fixed a problem where the `ImageLibraryPicker` would not be able to save the selected images if the relationship was not found. Even though it should not find the relationship, it should still be able to save the selected images.
+
 ## 2.2.0 - 2024-03-12
 
 ### Fixed
