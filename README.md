@@ -54,7 +54,7 @@ Configure the `outerweb/image-library` package as described in the [Image Librar
 Add the plugin to your desired Filament panel:
 
 ```php
-use OuterWeb\FilamentImageLibrary\Filament\Plugins\FilamentImageLibraryPlugin;
+use Outerweb\FilamentImageLibrary\Filament\Plugins\FilamentImageLibraryPlugin;
 
 class FilamentPanelProvider extends PanelProvider
 {
@@ -72,7 +72,7 @@ class FilamentPanelProvider extends PanelProvider
 You can specify the allowed storage disks where the user may upload images:
 
 ```php
-use OuterWeb\FilamentImageLibrary\Filament\Plugins\FilamentImageLibraryPlugin;
+use Outerweb\FilamentImageLibrary\Filament\Plugins\FilamentImageLibraryPlugin;
 
 class FilamentPanelProvider extends PanelProvider
 {
@@ -100,7 +100,7 @@ By default, the plugin will enable the public disk if you didn't specify any all
 You can set the navigation sort of the image library page by adding the `navigationSort` method:
 
 ```php
-use OuterWeb\FilamentImageLibrary\Filament\Plugins\FilamentImageLibraryPlugin;
+use Outerweb\FilamentImageLibrary\Filament\Plugins\FilamentImageLibraryPlugin;
 
 class FilamentPanelProvider extends PanelProvider
 {
