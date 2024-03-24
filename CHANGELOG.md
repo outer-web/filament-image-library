@@ -2,6 +2,17 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 2.4.0 - 2024-03-24
+
+### Added
+
+- Added information about the translatable fields package used in the background.
+
+### Fixed
+
+- Added a check to see if the `FilamentTranslatableFieldsPlugin` package is installed in the current dashboard before using it.
+- Use `CASE WHEN` instead of `FIELD()` to sort the images in the image library. This is done to make the plugin compatible with more database drivers.
+
 ## 2.3.0 - 2024-03-13
 
 ### Fixed

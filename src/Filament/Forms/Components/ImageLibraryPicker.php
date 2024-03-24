@@ -240,7 +240,9 @@ class ImageLibraryPicker extends Field
         }
 
         return Image::whereIn('id', $state)
-            ->orderByRaw('FIELD(id, ' . implode(',', $state) . ')')
+            ->orderByRaw('CASE id ' . implode(' ', array_map(function ($id) use ($state) {
+                return 'WHEN ' . $id . ' THEN ' . array_search($id, $state);
+            }, $state)) . ' END')
             ->get();
     }
 
@@ -418,18 +420,27 @@ class ImageLibraryPicker extends Field
             ->modalSubmitActionLabel(__('filament-image-library::translations.actions.save'))
             ->color('gray')
             ->icon('heroicon-o-pencil')
-            ->form([
-                TextInput::make('title')
+            ->form(function () {
+                $titleField = TextInput::make('title')
                     ->label(__('filament-image-library::translations.form.labels.title'))
                     ->helperText(__('filament-image-library::translations.form.help.title'))
-                    ->nullable()
-                    ->translatable(config('image-library.spatie_translatable')),
-                TextInput::make('alt')
+                    ->nullable();
+
+                $altField = TextInput::make('alt')
                     ->label(__('filament-image-library::translations.form.labels.alt'))
                     ->helperText(__('filament-image-library::translations.form.help.alt'))
-                    ->nullable()
-                    ->translatable(config('image-library.spatie_translatable')),
-            ])
+                    ->nullable();
+
+                if (app('filament')->hasPlugin(FilamentTranslatableFieldsPlugin::class)) {
+                    $titleField = $titleField->translatable();
+                    $altField = $altField->translatable();
+                }
+
+                return [
+                    $titleField,
+                    $altField,
+                ];
+            })
             ->fillForm(function (array $arguments) : array {
                 $image = ImageLibrary::imageModel()::find($arguments['id']);
 
@@ -476,7 +487,7 @@ class ImageLibraryPicker extends Field
                         ->filter(fn ($alt) => ! blank($alt))
                         ->count();
 
-                    $supportedLocalesCount = count(FilamentTranslatableFieldsPlugin::get()->getSupportedLocales());
+                    $supportedLocalesCount = app('filament')->hasPlugin(FilamentTranslatableFieldsPlugin::class) ? count(FilamentTranslatableFieldsPlugin::get()->getSupportedLocales()) : 1;
 
                     if ($titleTranslationsCount < $supportedLocalesCount) {
                         $count += $supportedLocalesCount - $titleTranslationsCount;

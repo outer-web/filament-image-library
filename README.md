@@ -12,7 +12,7 @@ It adds:
 - A cropper to crop each configured image conversion.
 - A 'drag to reorder' feature.
 - Editable image html attributes: title and alt.
-- Automatically works with spatie/laravel-translatable by using our filament-translatable-fields package.
+- Works with spatie/laravel-translatable by using our filament-translatable-fields package.
 
 ## Installation
 
@@ -338,6 +338,13 @@ use Outerweb\FilamentImageLibrary\Filament\Infolists\Components\ImageLibraryEntr
 ImageLibraryEntry::make('seoData.image')
     ->label('Image(s)'),
 ```
+
+## Working with translations
+
+If you are using the `spatie/laravel-translatable` package, you can use our `filament-translatable-fields` package to make the image picker translatable. This package is a requirement of this package, so the only things you need to do are:
+
+- Set the `spatie_translatable ` config option in the `image-library.php` config file to `true`.
+- follow the installation steps in the [README](https://github.com/outer-web/filament-translatable-fields/blob/main/README.md#installation).
 
 ## Changelog
 

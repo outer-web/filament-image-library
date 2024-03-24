@@ -21,46 +21,46 @@ class ImageLibrary extends Page
 
     protected static ?string $navigationIcon = 'heroicon-o-photo';
 
-    public static function getNavigationLabel(): string
+    public static function getNavigationLabel() : string
     {
         return __('filament-image-library::translations.page.navigation_label');
     }
 
-    public static function getNavigationSort(): ?int
+    public static function getNavigationSort() : ?int
     {
         return FilamentImageLibraryPlugin::get()->getNavigationSort();
     }
 
-    public function getLayout(): string
+    public function getLayout() : string
     {
         return static::$layout ?? 'filament-panels::components.layout.index';
     }
 
-    public function getView(): string
+    public function getView() : string
     {
         return static::$view ?? 'filament-image-library::filament/pages/image-library';
     }
 
-    public function getTitle(): string
+    public function getTitle() : string
     {
         return __('filament-image-library::translations.page.title');
     }
 
-    public function getViewData(): array
+    public function getViewData() : array
     {
         return [
             'images' => $this->getImages(),
         ];
     }
 
-    public function getImages(): LengthAwarePaginator
+    public function getImages() : LengthAwarePaginator
     {
         return FacadesImageLibrary::imageModel()::query()
             ->latest()
             ->paginate($this->itemsPerPage);
     }
 
-    public function getDeleteAction(): Action
+    public function getDeleteAction() : Action
     {
         return Action::make('getDeleteAction')
             ->hiddenLabel()
@@ -86,7 +86,7 @@ class ImageLibrary extends Page
             ->closeModalByClickingAway(false);
     }
 
-    public function getEditAction(): Action
+    public function getEditAction() : Action
     {
         return Action::make('getEditAction')
             ->hiddenLabel()
@@ -95,19 +95,28 @@ class ImageLibrary extends Page
             ->modalSubmitActionLabel(__('filament-image-library::translations.actions.save'))
             ->color('gray')
             ->icon('heroicon-o-pencil')
-            ->form([
-                TextInput::make('title')
+            ->form(function () {
+                $titleField = TextInput::make('title')
                     ->label(__('filament-image-library::translations.form.labels.title'))
                     ->helperText(__('filament-image-library::translations.form.help.title'))
-                    ->nullable()
-                    ->translatable(config('image-library.spatie_translatable')),
-                TextInput::make('alt')
-                    ->label(__('filament-image-library::translations.form.labels.title'))
-                    ->helperText(__('filament-image-library::translations.form.help.title'))
-                    ->nullable()
-                    ->translatable(config('image-library.spatie_translatable')),
-            ])
-            ->fillForm(function (array $arguments): array {
+                    ->nullable();
+
+                $altField = TextInput::make('alt')
+                    ->label(__('filament-image-library::translations.form.labels.alt'))
+                    ->helperText(__('filament-image-library::translations.form.help.alt'))
+                    ->nullable();
+
+                if (app('filament')->hasPlugin(FilamentTranslatableFieldsPlugin::class)) {
+                    $titleField = $titleField->translatable();
+                    $altField = $altField->translatable();
+                }
+
+                return [
+                    $titleField,
+                    $altField,
+                ];
+            })
+            ->fillForm(function (array $arguments) : array {
                 $image = FacadesImageLibrary::imageModel()::find($arguments['id']);
 
                 if (FacadesImageLibrary::isSpatieTranslatable()) {
@@ -122,7 +131,7 @@ class ImageLibrary extends Page
                     'alt' => $image->alt,
                 ];
             })
-            ->action(function (array $data, array $arguments): void {
+            ->action(function (array $data, array $arguments) : void {
                 $image = FacadesImageLibrary::imageModel()::find($arguments['id']);
 
                 $image->update([
@@ -135,21 +144,21 @@ class ImageLibrary extends Page
                     ->title(__('filament-image-library::translations.notifications.image_updated.title'))
                     ->send();
             })
-            ->badge(function (array $arguments): string {
+            ->badge(function (array $arguments) : string {
                 $image = FacadesImageLibrary::imageModel()::find($arguments['id']);
 
                 $count = 0;
 
                 if (FacadesImageLibrary::isSpatieTranslatable()) {
                     $titleTranslationsCount = collect($image->getTranslations('title') ?? [])
-                        ->filter(fn($title) => empty ($title))
+                        ->filter(fn ($title) => empty ($title))
                         ->count();
 
                     $altTranslationsCount = collect($image->getTranslations('alt') ?? [])
-                        ->filter(fn($alt) => empty ($alt))
+                        ->filter(fn ($alt) => empty ($alt))
                         ->count();
 
-                    $supportedLocalesCount = count(FilamentTranslatableFieldsPlugin::get()->getSupportedLocales());
+                    $supportedLocalesCount = app('filament')->hasPlugin(FilamentTranslatableFieldsPlugin::class) ? count(FilamentTranslatableFieldsPlugin::get()->getSupportedLocales()) : 1;
 
                     if ($titleTranslationsCount < $supportedLocalesCount) {
                         $count += $supportedLocalesCount - $titleTranslationsCount;
@@ -176,7 +185,7 @@ class ImageLibrary extends Page
             ->closeModalByClickingAway(false);
     }
 
-    public function getCropAction(): Action
+    public function getCropAction() : Action
     {
         return Action::make('getCropAction')
             ->hiddenLabel()
@@ -185,7 +194,7 @@ class ImageLibrary extends Page
             ->modalSubmitActionLabel(__('filament-image-library::translations.actions.save'))
             ->color('gray')
             ->icon('heroicon-o-scissors')
-            ->fillForm(function (array $arguments): array {
+            ->fillForm(function (array $arguments) : array {
                 $image = FacadesImageLibrary::imageModel()::find($arguments['id']);
 
                 return $image
@@ -227,13 +236,13 @@ class ImageLibrary extends Page
                         }),
                 ];
             })
-            ->action(function (array $data, array $arguments): void {
+            ->action(function (array $data, array $arguments) : void {
                 $image = FacadesImageLibrary::imageModel()::find($arguments['id']);
 
                 foreach ($data as $key => $value) {
                     $conversion = $image->conversions->firstWhere('id', $value['id']);
 
-                    if (!$conversion) {
+                    if (! $conversion) {
                         continue;
                     }
 
@@ -256,7 +265,7 @@ class ImageLibrary extends Page
             ->closeModalByClickingAway(false);
     }
 
-    protected function getHeaderActions(): array
+    protected function getHeaderActions() : array
     {
         return [
             Action::make('upload')
