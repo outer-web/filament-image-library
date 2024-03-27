@@ -24,6 +24,10 @@ return [
     'states' => [
         'selected' => 'Selected',
     ],
+    'pagination' => [
+        'next' => 'Next',
+        'previous' => 'Previous',
+    ],
     'disks' => [
         'public' => 'Public',
     ],

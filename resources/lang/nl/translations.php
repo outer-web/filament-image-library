@@ -24,6 +24,10 @@ return [
     'states' => [
         'selected' => 'Geselecteerd',
     ],
+    'pagination' => [
+        'next' => 'Volgende',
+        'previous' => 'Vorige',
+    ],
     'disks' => [
         'public' => 'Openbaar',
     ],

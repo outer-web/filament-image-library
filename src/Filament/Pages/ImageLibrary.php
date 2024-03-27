@@ -8,6 +8,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Livewire\Features\SupportPagination\HandlesPagination;
+use Livewire\WithPagination;
 use Outerweb\FilamentImageLibrary\Filament\Forms\Components\ImageLibraryCropper;
 use Outerweb\FilamentImageLibrary\Filament\Forms\Components\ImageLibraryPicker;
 use Outerweb\FilamentImageLibrary\Filament\Plugins\FilamentImageLibraryPlugin;
@@ -17,6 +19,8 @@ use Outerweb\ImageLibrary\Models\ImageConversion;
 
 class ImageLibrary extends Page
 {
+    use WithPagination;
+
     public int|string $itemsPerPage = 48;
 
     protected static ?string $navigationIcon = 'heroicon-o-photo';
@@ -106,7 +110,7 @@ class ImageLibrary extends Page
                     ->helperText(__('filament-image-library::translations.form.help.alt'))
                     ->nullable();
 
-                if (app('filament')->hasPlugin(FilamentTranslatableFieldsPlugin::class)) {
+                if (app('filament')->hasPlugin(app(FilamentTranslatableFieldsPlugin::class)->getId())) {
                     $titleField = $titleField->translatable();
                     $altField = $altField->translatable();
                 }
@@ -158,7 +162,7 @@ class ImageLibrary extends Page
                         ->filter(fn ($alt) => empty ($alt))
                         ->count();
 
-                    $supportedLocalesCount = app('filament')->hasPlugin(FilamentTranslatableFieldsPlugin::class) ? count(FilamentTranslatableFieldsPlugin::get()->getSupportedLocales()) : 1;
+                    $supportedLocalesCount = app('filament')->hasPlugin(app(FilamentTranslatableFieldsPlugin::class)->getId()) ? count(FilamentTranslatableFieldsPlugin::get()->getSupportedLocales()) : 1;
 
                     if ($titleTranslationsCount < $supportedLocalesCount) {
                         $count += $supportedLocalesCount - $titleTranslationsCount;

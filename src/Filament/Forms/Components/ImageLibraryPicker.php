@@ -46,7 +46,7 @@ class ImageLibraryPicker extends Field
 
     protected bool|Closure $disableImageEditBadges = false;
 
-    protected int|string $existingItemsPerPage = 9;
+    protected int|string $existingItemsPerPage = 2;
 
     protected array|Closure $filteredConversionDefinitions = [];
 
@@ -431,7 +431,7 @@ class ImageLibraryPicker extends Field
                     ->helperText(__('filament-image-library::translations.form.help.alt'))
                     ->nullable();
 
-                if (app('filament')->hasPlugin(FilamentTranslatableFieldsPlugin::class)) {
+                if (app('filament')->hasPlugin(app(FilamentTranslatableFieldsPlugin::class)->getId())) {
                     $titleField = $titleField->translatable();
                     $altField = $altField->translatable();
                 }
@@ -487,7 +487,7 @@ class ImageLibraryPicker extends Field
                         ->filter(fn ($alt) => ! blank($alt))
                         ->count();
 
-                    $supportedLocalesCount = app('filament')->hasPlugin(FilamentTranslatableFieldsPlugin::class) ? count(FilamentTranslatableFieldsPlugin::get()->getSupportedLocales()) : 1;
+                    $supportedLocalesCount = app('filament')->hasPlugin(app(FilamentTranslatableFieldsPlugin::class)->getId()) ? count(FilamentTranslatableFieldsPlugin::get()->getSupportedLocales()) : 1;
 
                     if ($titleTranslationsCount < $supportedLocalesCount) {
                         $count += $supportedLocalesCount - $titleTranslationsCount;

@@ -2,6 +2,13 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 2.5.0 - 2024-03-27
+
+### Fixed
+
+- Fixed pagination on the image library page and the select-existing modal.
+- Fixed localization in the edit modal
+
 ## 2.4.0 - 2024-03-24
 
 ### Added

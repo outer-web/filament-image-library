@@ -1,19 +1,62 @@
+@php
+	$images = $getImages();
+@endphp
+
 <x-dynamic-component
 	:component="$getFieldWrapperView()"
 	:field="$field"
 	x-data="{
     allowsMultiple: {{ json_encode($getAllowsMultiple()) }},
     state: $wire.$entangle('{{ $getStatePath() }}'),
+    currentPage: 1,
+    itemsPerPage: {{ $getItemsPerPage() }},
+    totalItems: {{ count($images ?? []) }},
+    showItem(index) {
+        return index >= (this.currentPage - 1) * this.itemsPerPage && index < this.currentPage * this.itemsPerPage;
+    },
+    previousPage() {
+        if (this.currentPage > 1) {
+            this.currentPage--;
+        }
+    },
+    nextPage() {
+        if (this.currentPage < Math.ceil(this.totalItems / this.itemsPerPage)) {
+            this.currentPage++;
+        }
+    },
+    showPreviousButton() {
+        return this.currentPage > 1 && this.totalItems > this.itemsPerPage;
+    },
+    showNextButton() {
+        return this.currentPage < Math.ceil(this.totalItems / this.itemsPerPage) && this.totalItems > this.itemsPerPage;
+    },
 }"
 >
-	@php
-		$images = $getImages();
-	@endphp
-	<div class="grid grid-cols-2 xl:grid-cols-3 gap-3 mb-2">
+	<div
+		class="flex items-center justify-between"
+		x-show="showPreviousButton() || showNextButton()"
+	>
+		<x-filament::button
+			color="gray"
+			x-bind:class="{ 'opacity-0': !showPreviousButton() }"
+			x-on:click="previousPage"
+		>
+			{{ __('filament-image-library::translations.pagination.previous') }}
+		</x-filament::button>
+		<x-filament::button
+			color="gray"
+			x-bind:class="{ 'opacity-0': !showNextButton() }"
+			x-on:click="nextPage"
+		>
+			{{ __('filament-image-library::translations.pagination.next') }}
+		</x-filament::button>
+	</div>
+	<div class="grid grid-cols-2 gap-3 mb-2 xl:grid-cols-3">
 		@forelse ($images as $image)
 			<label
 				wire:key="image-{{ $image->id }}"
-				class="relative overflhidden rounded-lg ring-1 ring-gray-950/10 dark:ring-white/20 bg-white cursor-pointer"
+				class="relative bg-white rounded-lg cursor-pointer overflhidden ring-1 ring-gray-950/10 dark:ring-white/20"
+				x-show="showItem({{ $loop->index }})"
 			>
 				<input
 					type="{{ $getAllowsMultiple() ? 'checkbox' : 'radio' }}"
@@ -28,7 +71,7 @@
 					class="w-full"
 					draggable="false"
 				/>
-				<div class="flex flex-wrap justify-end items-center gap-3 p-3">
+				<div class="flex flex-wrap items-center justify-end gap-3 p-3">
 					<x-filament::button
 						color="gray"
 						x-show="! state?.includes({{ $image->id }})"
@@ -47,13 +90,28 @@
 				</div>
 			</label>
 		@empty
-			<div class="text-gray-500 col-span-full text-center py-5">
+			<div class="py-5 text-center text-gray-500 col-span-full">
 				{{ __('filament-image-library::translations.no_images_found') }}
 			</div>
 		@endforelse
 	</div>
-	<x-filament::pagination
-		:paginator="$images"
-		current-page-option-property="itemsPerPage"
-	/>
+	<div
+		class="flex items-center justify-between"
+		x-show="showPreviousButton() || showNextButton()"
+	>
+		<x-filament::button
+			color="gray"
+			x-bind:class="{ 'opacity-0': !showPreviousButton() }"
+			x-on:click="previousPage"
+		>
+			{{ __('filament-image-library::translations.pagination.previous') }}
+		</x-filament::button>
+		<x-filament::button
+			color="gray"
+			x-bind:class="{ 'opacity-0': !showNextButton() }"
+			x-on:click="nextPage"
+		>
+			{{ __('filament-image-library::translations.pagination.next') }}
+		</x-filament::button>
+	</div>
 </x-dynamic-component>
