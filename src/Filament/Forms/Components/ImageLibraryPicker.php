@@ -46,7 +46,7 @@ class ImageLibraryPicker extends Field
 
     protected bool|Closure $disableImageEditBadges = false;
 
-    protected int|string $existingItemsPerPage = 2;
+    protected int|string $existingItemsPerPage = 9;
 
     protected array|Closure $filteredConversionDefinitions = [];
 

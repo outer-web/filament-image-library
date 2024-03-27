@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 2.5.1 - 2024-03-27
+
+### Fixed
+
+- Fixed the pagination limit.
+
 ## 2.5.0 - 2024-03-27
 
 ### Fixed
