@@ -30,6 +30,16 @@ class ImageLibrary extends Page
         return __('filament-image-library::translations.page.navigation_label');
     }
 
+    public static function getNavigationGroup() : string
+    {
+        return __('filament-image-library::translations.page.navigation_group');
+    }
+
+    public static function getNavigationIcon(): string
+    {
+        return config('filament-image-library.navigation_icon');
+    }
+
     public static function getNavigationSort() : ?int
     {
         return FilamentImageLibraryPlugin::get()->getNavigationSort();

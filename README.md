@@ -22,6 +22,22 @@ You can install the package via composer:
 composer require outerweb/filament-image-library
 ```
 
+You can publish the config file with:
+
+```bash
+php artisan vendor:publish --tag="filament-image-library-config"
+```
+
+You can publish the translations using:
+
+```bash
+php artisan vendor:publish --tag="filament-image-library-translations"
+```
+
+### Customize the Image Library Page
+
+If you need to customize the image library page, you can create a new Filament page that extends the ImageLibrary class. Set your custom page in the configuration file and then make your customizations.
+
 ### Create or Update your custom theme
 
 To comply with the recommended way of styling a Filament plugin, you will have to **create a custom theme**.
@@ -48,6 +64,10 @@ You can then run `npm run build` to build your custom theme's assets.
 ### Configure the underlying outerweb/image-library
 
 Configure the `outerweb/image-library` package as described in the [Image Library documentation](https://github.com/outer-web/image-library).
+
+### Configure the Navigation group
+
+To configure the navigation group, publish the translation files, then edit the navigation_group value.
 
 ### Add the plugin to your panel
 

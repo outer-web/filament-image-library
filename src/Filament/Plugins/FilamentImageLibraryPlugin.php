@@ -4,7 +4,7 @@ namespace Outerweb\FilamentImageLibrary\Filament\Plugins;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
-use Outerweb\FilamentImageLibrary\Filament\Pages;
+use Outerweb\FilamentImageLibrary\Filament\Pages\ImageLibrary;
 
 class FilamentImageLibraryPlugin implements Plugin
 {
@@ -31,7 +31,7 @@ class FilamentImageLibraryPlugin implements Plugin
     public function register(Panel $panel): void
     {
         $panel->pages([
-            Pages\ImageLibrary::class,
+            config('filament-image-library.page_class', ImageLibrary::class),
         ]);
     }
 

@@ -97,5 +97,6 @@ return [
     'page' => [
         'title' => 'Afbeeldingen',
         'navigation_label' => 'Afbeeldingen',
+        'navigation_group' => '',
     ],
 ];
