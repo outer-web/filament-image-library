@@ -20,6 +20,7 @@ class FilamentImageLibraryServiceProvider extends PackageServiceProvider
     {
         $package
             ->name('filament-image-library')
+            ->hasConfigFile()
             ->hasTranslations()
             ->hasViews()
             ->hasInstallCommand(function (InstallCommand $command) {

@@ -97,5 +97,6 @@ return [
     'page' => [
         'title' => 'Image Library',
         'navigation_label' => 'Image Library',
+        'navigation_group' => '',
     ],
 ];
