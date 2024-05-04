@@ -23,8 +23,6 @@ class ImageLibrary extends Page
 
     public int|string $itemsPerPage = 48;
 
-    protected static ?string $navigationIcon = 'heroicon-o-photo';
-
     public static function getNavigationLabel() : string
     {
         return __('filament-image-library::translations.page.navigation_label');
@@ -35,9 +33,9 @@ class ImageLibrary extends Page
         return __('filament-image-library::translations.page.navigation_group');
     }
 
-    public static function getNavigationIcon(): string
+    public static function getNavigationIcon() : string
     {
-        return config('filament-image-library.navigation_icon');
+        return config('filament-image-library.navigation_icon', 'heroicon-o-photo');
     }
 
     public static function getNavigationSort() : ?int

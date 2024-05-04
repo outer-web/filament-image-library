@@ -13,43 +13,50 @@ class FilamentImageLibraryPlugin implements Plugin
 
     protected ?int $navigationSort = null;
 
-    public static function make(): static
+    public static function make() : static
     {
         return app(static::class);
     }
 
-    public static function get(): static
+    public static function get() : static
     {
         return filament(app(static::class)->getId());
     }
 
-    public function getId(): string
+    public function getId() : string
     {
         return 'outerweb-filament-image-library';
     }
 
-    public function register(Panel $panel): void
+    public function register(Panel $panel) : void
     {
         $panel->pages([
             config('filament-image-library.page_class', ImageLibrary::class),
         ]);
     }
 
-    public function boot(Panel $panel): void
+    public function boot(Panel $panel) : void
     {
 
     }
 
-    public function addAllowedDisk(string $disk, ?string $label = null): static
+    public function addAllowedDisk(string $disk, ?string $label = null) : static
     {
         $this->allowedDisks[$disk] = $label ?? $disk;
 
         return $this;
     }
 
-    public function defaultDisk(string $disk): static
+    public function allowedDisks(array $disks) : static
     {
-        if (!in_array($disk, $this->allowedDisks)) {
+        $this->allowedDisks = $disks;
+
+        return $this;
+    }
+
+    public function defaultDisk(string $disk) : static
+    {
+        if (! in_array($disk, $this->allowedDisks)) {
             throw new \Exception("The default disk [{$disk}] is not in the allowed disks.");
         }
 
@@ -58,14 +65,14 @@ class FilamentImageLibraryPlugin implements Plugin
         return $this;
     }
 
-    public function navigationSort(?int $sort): static
+    public function navigationSort(?int $sort) : static
     {
         $this->navigationSort = $sort;
 
         return $this;
     }
 
-    public function getAllowedDisks(): array
+    public function getAllowedDisks() : array
     {
         if (empty($this->allowedDisks)) {
             return [
@@ -76,12 +83,12 @@ class FilamentImageLibraryPlugin implements Plugin
         return $this->allowedDisks;
     }
 
-    public function getDefaultDisk(): string
+    public function getDefaultDisk() : string
     {
         return $this->defaultDisk;
     }
 
-    public function getNavigationSort(): ?int
+    public function getNavigationSort() : ?int
     {
         return $this->navigationSort;
     }

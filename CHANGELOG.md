@@ -2,6 +2,18 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 2.6.0 - 2024-05-04
+
+### Added
+
+- Added Arabic translations. (Thanks to Karam Nassar)
+- Added the ability to customize the navigation icon of the image library page. (Thanks to Karam Nassar)
+- Added the ability to customize the image library page itself. (Thanks to Karam Nassar)
+
+### Fixed
+
+- Actually added the `allowedDisks()` method described in the README.md
+
 ## 2.5.1 - 2024-03-27
 
 ### Fixed

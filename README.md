@@ -1,3 +1,5 @@
+![Filament Image Library](docs/images/banner.png)
+
 # Filament Image Library
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/outerweb/filament-image-library.svg?style=flat-square)](https://packagist.org/packages/outerweb/filament-image-library)
@@ -34,10 +36,6 @@ You can publish the translations using:
 php artisan vendor:publish --tag="filament-image-library-translations"
 ```
 
-### Customize the Image Library Page
-
-If you need to customize the image library page, you can create a new Filament page that extends the ImageLibrary class. Set your custom page in the configuration file and then make your customizations.
-
 ### Create or Update your custom theme
 
 To comply with the recommended way of styling a Filament plugin, you will have to **create a custom theme**.
@@ -64,6 +62,10 @@ You can then run `npm run build` to build your custom theme's assets.
 ### Configure the underlying outerweb/image-library
 
 Configure the `outerweb/image-library` package as described in the [Image Library documentation](https://github.com/outer-web/image-library).
+
+### Customize the Image Library Page
+
+If you need to customize the image library page, you can create a new Filament page that extends the ImageLibrary class. Set your custom page in the configuration file and then make your customizations.
 
 ### Configure the Navigation group
 
@@ -114,6 +116,25 @@ In the example above, the user will be able to upload images to the `public` dis
 The UI will show the disk name as `Public images`. You can also add a translation for the disk name.
 
 By default, the plugin will enable the public disk if you didn't specify any allowed disks.
+
+You can also use the `addAllowedDisk` method to add a disk:
+
+```php
+use Outerweb\FilamentImageLibrary\Filament\Plugins\FilamentImageLibraryPlugin;
+
+class FilamentPanelProvider extends PanelProvider
+{
+    public function panel(Panel $panel): Panel
+    {
+        return $panel
+            // ...
+            ->plugins([
+                FilamentImageLibraryPlugin::make()
+                    ->addAllowedDisk('public', 'Public images'),
+            ]);
+    }
+}
+```
 
 ### Set the navigation sort of the image library page
 
@@ -366,6 +387,13 @@ If you are using the `spatie/laravel-translatable` package, you can use our `fil
 - Set the `spatie_translatable ` config option in the `image-library.php` config file to `true`.
 - follow the installation steps in the [README](https://github.com/outer-web/filament-translatable-fields/blob/main/README.md#installation).
 
+## Laravel support
+
+| Laravel Version | Package version |
+| --------------- | --------------- |
+| ^11.0           | ^2.1.1          |
+| ^10.0           | ^1.0.0, ^2.0.0  |
+
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
@@ -373,8 +401,9 @@ Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed re
 ## Credits
 
 - [Simon Broekaert](https://github.com/SimonBroekaert)
+- [Karam Nassar](https://github.com/KaramNassar)
 - [All Contributors](../../contributors)
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+MIT License (MIT). Read the [License File](LICENSE.md) for more information.
