@@ -2,7 +2,7 @@
 	<div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 mb-2">
 		@forelse ($images as $image)
 			<div
-				class="relative overflhidden rounded-lg ring-1 ring-gray-950/10 dark:ring-white/20 bg-white"
+				class="relative overflhidden rounded-lg ring-1 ring-gray-950/10 dark:ring-white/20 bg-white dark:bg-gray-900"
 			>
 				<x-image-library-image
 					:image="$image"
