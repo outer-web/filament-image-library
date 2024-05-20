@@ -402,6 +402,7 @@ Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed re
 
 - [Simon Broekaert](https://github.com/SimonBroekaert)
 - [Karam Nassar](https://github.com/KaramNassar)
+- [Nuhel](https://github.com/Nuhel)
 - [All Contributors](../../contributors)
 
 ## License

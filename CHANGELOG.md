@@ -2,6 +2,13 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 2.6.1 - 2024-05-20
+
+### Fixed
+
+- Fixed styling so that the cropper does not overlap the modal action buttons (Thanks to Nuhel)
+- Fixed dark mode styling of the image list (Thanks to Nuhel)
+
 ## 2.6.0 - 2024-05-04
 
 ### Added
