@@ -74,7 +74,7 @@
 		data-cropper-container
 		x-on:visible="alert('visible')"
 	>
-		<div class="absolute inset-0 w-full h-full z-0">
+		<div class="w-full h-full z-0">
 			<img
 				wire:ignore
 				src="{{ $getImage()->getUrl() }}"
