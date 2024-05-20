@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 2.6.2 - 2024-05-20
+
+### Added
+
+- Added support for v2.0.0 of the `filament-translatable-fields` package to the dependencies.
+
 ## 2.6.1 - 2024-05-20
 
 ### Fixed
