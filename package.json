@@ -1,0 +1,30 @@
+{
+    "name": "filament-image-library",
+    "version": "1.0.0",
+    "description": "Filament v4 Image Library Component",
+    "main": "resources/dist/filament-image-library.js",
+    "type": "module",
+    "directories": {
+        "doc": "docs",
+        "test": "tests"
+    },
+    "scripts": {
+        "build": "node bin/build.js",
+        "dev": "node bin/build.js --dev",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "filament",
+        "image",
+        "upload",
+        "drag-drop"
+    ],
+    "author": "Outerweb",
+    "license": "MIT",
+    "devDependencies": {
+        "esbuild": "^0.27.1"
+    },
+    "dependencies": {
+        "cropperjs": "1.6.2"
+    }
+}
