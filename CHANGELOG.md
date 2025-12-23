@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 3.0.3 - 2025-12-23
+
+### Fixed
+
+-   More fixes to state updating and fetching to support From Builder Components
+
 ## 3.0.2 - 2025-12-23
 
 ### Fixed

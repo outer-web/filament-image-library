@@ -136,20 +136,20 @@ class ImageCropper extends Field
             ->suffix(__('filament-image-library::translations.forms.suffixes.width'))
             ->hiddenLabel()
             ->live()
-            ->afterStateUpdated(function (array $state, Set $set): void {
-                $sourceImage = $this->getSourceImage();
+            ->afterStateUpdated(function (array $state, Set $set, self $component): void {
+                $sourceImage = $component->getSourceImage();
 
                 if ($state < 0) {
                     $state = 0;
                 }
 
-                if ($state + $this->getState()['x'] > $sourceImage->width) {
-                    $state = $sourceImage->width - $this->getState()['x'];
+                if ($state + $component->getState()['x'] > $sourceImage->width) {
+                    $state = $sourceImage->width - $component->getState()['x'];
                 }
 
                 $set(
-                    $this->getStatePath(false),
-                    array_merge($this->getState(), [
+                    $component->getStatePath(false),
+                    array_merge($component->getState(), [
                         'width' => $state,
                     ]),
                 );
@@ -164,20 +164,20 @@ class ImageCropper extends Field
             ->suffix(__('filament-image-library::translations.forms.suffixes.height'))
             ->hiddenLabel()
             ->live()
-            ->afterStateUpdated(function (array $state, Set $set): void {
-                $sourceImage = $this->getSourceImage();
+            ->afterStateUpdated(function (array $state, Set $set, self $component): void {
+                $sourceImage = $component->getSourceImage();
 
                 if ($state < 0) {
                     $state = 0;
                 }
 
-                if ($state + $this->getState()['y'] > $sourceImage->height) {
-                    $state = $sourceImage->height - $this->getState()['y'];
+                if ($state + $component->getState()['y'] > $sourceImage->height) {
+                    $state = $sourceImage->height - $component->getState()['y'];
                 }
 
                 $set(
-                    $this->getStatePath(false),
-                    array_merge($this->getState(), [
+                    $component->getStatePath(false),
+                    array_merge($component->getState(), [
                         'height' => $state,
                     ]),
                 );
@@ -192,20 +192,20 @@ class ImageCropper extends Field
             ->suffix(__('filament-image-library::translations.forms.suffixes.x'))
             ->hiddenLabel()
             ->live()
-            ->afterStateUpdated(function (array $state, Set $set): void {
-                $sourceImage = $this->getSourceImage();
+            ->afterStateUpdated(function (array $state, Set $set, self $component): void {
+                $sourceImage = $component->getSourceImage();
 
                 if ($state < 0) {
                     $state = 0;
                 }
 
-                if ($state + $this->getState()['width'] > $sourceImage->width) {
-                    $state = $sourceImage->width - $this->getState()['width'];
+                if ($state + $component->getState()['width'] > $sourceImage->width) {
+                    $state = $sourceImage->width - $component->getState()['width'];
                 }
 
                 $set(
-                    $this->getStatePath(false),
-                    array_merge($this->getState(), [
+                    $component->getStatePath(false),
+                    array_merge($component->getState(), [
                         'x' => $state,
                     ]),
                 );
@@ -220,20 +220,20 @@ class ImageCropper extends Field
             ->suffix(__('filament-image-library::translations.forms.suffixes.y'))
             ->hiddenLabel()
             ->live()
-            ->afterStateUpdated(function (array $state, Set $set): void {
-                $sourceImage = $this->getSourceImage();
+            ->afterStateUpdated(function (array $state, Set $set, self $component): void {
+                $sourceImage = $component->getSourceImage();
 
                 if ($state < 0) {
                     $state = 0;
                 }
 
-                if ($state + $this->getState()['height'] > $sourceImage->height) {
-                    $state = $sourceImage->height - $this->getState()['height'];
+                if ($state + $component->getState()['height'] > $sourceImage->height) {
+                    $state = $sourceImage->height - $component->getState()['height'];
                 }
 
                 $set(
-                    $this->getStatePath(false),
-                    array_merge($this->getState(), [
+                    $component->getStatePath(false),
+                    array_merge($component->getState(), [
                         'y' => $state,
                     ]),
                 );

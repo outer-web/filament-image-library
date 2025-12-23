@@ -77,10 +77,10 @@ class ImageEntry extends Entry
             ->modalFooterActions(null)
             ->modalSubmitAction(false)
             ->modalCancelAction(false)
-            ->schema(function (array $arguments): array {
+            ->schema(function (array $arguments, self $component): array {
                 $imageUuid = $arguments['uuid'];
 
-                $images = collect($this->getState() ?? [])
+                $images = collect($component->getState() ?? [])
                     ->filter(fn (Image $image) => ($image->custom_properties['filament_uuid'] ?? null) === $imageUuid);
 
                 return [

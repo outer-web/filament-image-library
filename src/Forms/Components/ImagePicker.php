@@ -7,6 +7,7 @@ namespace Outerweb\FilamentImageLibrary\Forms\Components;
 use Closure;
 use Exception;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
@@ -16,6 +17,7 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -42,6 +44,8 @@ class ImagePicker extends Field
 
     protected ?Closure $modifyQueryUsing = null;
 
+    protected array|Closure $usingCustomProperties = [];
+
     public function setUp(): void
     {
         $this->belowContent(Schema::center($this->getFieldActions()));
@@ -60,40 +64,11 @@ class ImagePicker extends Field
                     $query->limit(1);
                 });
 
-            if (! is_null($this->modifyQueryUsing)) {
-                $query = $this->evaluate(
-                    $this->modifyQueryUsing,
-                    [
-                        'query' => $query,
-                        'record' => $record,
-                        'relationshipName' => $relationshipName,
-                    ]
-                );
-            }
+            $query = $this->modifyQuery($query);
 
             $images = $query->get()
                 ->map(function (Image $image) {
-                    return [
-                        ImageLibraryFacade::getImageModelKeyName() => $image->getKey(),
-                        'source_image_key' => $image->sourceImage->getKey(),
-                        'source_image' => [
-                            'alt_text' => ImageLibraryPlugin::get()->usesTranslatablePlugin() ? $image->sourceImage->getTranslations('alt_text') : $image->sourceImage->alt_text,
-                        ],
-                        ImageLibraryFacade::getImageModelSortOrderColumnName() => $image->{ImageLibraryFacade::getImageModelSortOrderColumnName()},
-                        'context' => $image->context->getKey(),
-                        'alt_text' => $image->getOriginal('alt_text'),
-                        'crop_data' => collect($image->crop_data ?? [])
-                            ->map(function (CropData|array|null $cropData) {
-                                if ($cropData instanceof CropData) {
-                                    return $cropData->toArray();
-                                }
-
-                                return $cropData;
-                            })
-                            ->all(),
-                        'custom_properties' => $image->custom_properties,
-                        'filament_uuid' => $image->custom_properties['filament_uuid'] ?? Str::uuid()->toString(),
-                    ];
+                    return $this->mapModelToState($image);
                 })
                 ->all();
 
@@ -143,76 +118,12 @@ class ImagePicker extends Field
             );
         });
 
-        $this->dehydrated(false);
+        $this->dehydrated(function (): bool {
+            return $this->getContainer()->getParentComponent() instanceof Block;
+        });
 
-        $this->saveRelationshipsUsing(function (?array $state): array {
-            $images = [];
-
-            try {
-                DB::beginTransaction();
-
-                foreach ($state as $imageData) {
-                    $imageData = collect($imageData)
-                        ->undot()
-                        ->all();
-                    $imageKey = $imageData[ImageLibraryFacade::getImageModelKeyName()] ?? null;
-                    $sourceImageKey = $imageData['source_image_key'] ?? null;
-
-                    $uuid = $imageData['filament_uuid'] ?? null;
-                    $imageData['custom_properties'] = array_merge(
-                        $imageData['custom_properties'] ?? [],
-                        ['filament_uuid' => $uuid],
-                    );
-
-                    unset(
-                        $imageData[ImageLibraryFacade::getImageModelKeyName()],
-                        $imageData['source_image'],
-                        $imageData['filament_uuid'],
-                        $imageData['source_image_key'],
-                    );
-
-                    if (! is_null($imageKey)) {
-                        $image = ImageLibraryFacade::getImageModel()::query()
-                            ->where(ImageLibraryFacade::getImageModelKeyName(), $imageKey)
-                            ->firstOrFail();
-
-                        $image->update($imageData);
-
-                        $images[] = $image;
-
-                        continue;
-                    }
-
-                    $sourceImage = ImageLibraryFacade::getSourceImageModel()::query()
-                        ->where(ImageLibraryFacade::getSourceImageModelKeyName(), $sourceImageKey)
-                        ->first();
-
-                    /** @phpstan-ignore-next-line */
-                    $images[] = $this->getModelInstance()->attachImage(
-                        $sourceImage,
-                        $imageData,
-                        $this->getName()
-                    );
-                }
-
-                $record = $this->getModelInstance();
-                $relationshipName = $this->getName();
-
-                $record->{$relationshipName}()->whereNotIn(
-                    ImageLibraryFacade::getImageModelKeyName(),
-                    collect($images)->map(fn (Image $image) => $image->getKey())->all(),
-                )
-                    ->cursor()
-                    ->each(fn (Image $image): ?bool => $image->delete());
-
-                DB::commit();
-            } catch (Exception $exception) {
-                DB::rollBack();
-
-                throw $exception;
-            }
-
-            return $images;
+        $this->saveRelationshipsUsing(function (?array $state): void {
+            $this->saveImages($state ?? []);
         });
 
         $this->registerActions([
@@ -221,6 +132,124 @@ class ImagePicker extends Field
             $this->cropAction(),
             $this->detachAction(),
         ]);
+    }
+
+    public function modifyQuery(BuilderContract $query): BuilderContract
+    {
+        if (! is_null($this->modifyQueryUsing)) {
+            $query = $this->evaluate(
+                $this->modifyQueryUsing,
+                [
+                    'query' => $query,
+                    'record' => $this->getModelInstance(),
+                    'relationshipName' => $this->getName(),
+                ]
+            );
+        }
+
+        $customProperties = $this->getCustomProperties();
+
+        if (is_iterable($customProperties)) {
+            $query->where(function (BuilderContract $query) use ($customProperties): void {
+                foreach ($customProperties as $key => $value) {
+                    $query->where("custom_properties->{$key}", $value);
+                }
+            });
+        }
+
+        return $query;
+    }
+
+    public function saveImages(array $state): array
+    {
+        $images = [];
+
+        try {
+            DB::beginTransaction();
+
+            foreach ($state as $imageData) {
+                $imageData = collect($imageData)
+                    ->undot()
+                    ->all();
+                $imageKey = $imageData[ImageLibraryFacade::getImageModelKeyName()] ?? null;
+                $sourceImageKey = $imageData['source_image_key'] ?? null;
+
+                $uuid = $imageData['filament_uuid'] ?? null;
+                $imageData['custom_properties'] = array_merge(
+                    $imageData['custom_properties'] ?? [],
+                    ['filament_uuid' => $uuid],
+                    $this->getCustomProperties() ?? []
+                );
+
+                unset(
+                    $imageData[ImageLibraryFacade::getImageModelKeyName()],
+                    $imageData['source_image'],
+                    $imageData['filament_uuid'],
+                    $imageData['source_image_key'],
+                );
+
+                if (! is_null($imageKey)) {
+                    $image = ImageLibraryFacade::getImageModel()::query()
+                        ->where(ImageLibraryFacade::getImageModelKeyName(), $imageKey)
+                        ->firstOrFail();
+
+                    $image->update($imageData);
+
+                    $images[] = $image;
+
+                    continue;
+                }
+
+                $sourceImage = ImageLibraryFacade::getSourceImageModel()::query()
+                    ->where(ImageLibraryFacade::getSourceImageModelKeyName(), $sourceImageKey)
+                    ->first();
+
+                /** @phpstan-ignore-next-line */
+                $images[] = $this->getModelInstance()->attachImage(
+                    $sourceImage,
+                    $imageData,
+                    $this->getName()
+                );
+            }
+
+            $record = $this->getModelInstance();
+            $relationshipName = $this->getName();
+
+            $query = $record->{$relationshipName}()->whereNotIn(
+                ImageLibraryFacade::getImageModelKeyName(),
+                collect($images)->map(fn (Image $image) => $image->getKey())->all(),
+            );
+
+            $query = $this->modifyQuery($query);
+
+            $query
+                ->cursor()
+                ->each(fn (Image $image): ?bool => $image->delete());
+
+            DB::commit();
+        } catch (Exception $exception) {
+            DB::rollBack();
+
+            throw $exception;
+        }
+
+        return collect($images)
+            ->map(function (Image $image) {
+                return $this->mapModelToState($image);
+            })
+            ->all();
+    }
+
+    public function usingCustomProperties(array|Closure $properties): static
+    {
+        $this->usingCustomProperties = $properties;
+
+        return $this;
+    }
+
+    public function getCustomProperties(): ?array
+    {
+        return $this->evaluate($this->usingCustomProperties) ?? [];
     }
 
     public function getRenderableImages(): array
@@ -316,11 +345,11 @@ class ImagePicker extends Field
     public function sortAction(): Action
     {
         return Action::make('sort')
-            ->action(function (array $arguments, Set $set): void {
+            ->action(function (array $arguments, Set $set, self $component): void {
                 $uuid = $arguments['uuid'];
                 $position = $arguments['position'];
 
-                $uniqueState = collect($this->getState())
+                $uniqueState = collect($component->getState())
                     ->unique('filament_uuid')
                     ->values();
 
@@ -336,7 +365,7 @@ class ImagePicker extends Field
 
                 $uniqueState->splice($position, 0, [$itemToMove]);
 
-                $state = collect($this->getState())
+                $state = collect($component->getState())
                     ->map(function ($item) use ($uniqueState) {
                         $index = $uniqueState->search(function ($uniqueItem) use ($item) {
                             return $uniqueItem['filament_uuid'] === $item['filament_uuid'];
@@ -350,7 +379,7 @@ class ImagePicker extends Field
                     ->all();
 
                 $set(
-                    $this->getStatePath(false),
+                    $component->getStatePath(false),
                     $state,
                 );
             });
@@ -363,23 +392,23 @@ class ImagePicker extends Field
             ->icon(Heroicon::OutlinedPencilSquare)
             ->color('gray')
             ->tooltip(__('filament-image-library::translations.tooltips.edit'))
-            ->fillForm(function (array $arguments): array {
-                return collect($this->getState())
+            ->fillForm(function (array $arguments, self $component): array {
+                return collect($component->getState())
                     ->where('filament_uuid', $arguments['uuid'])
                     ->mapWithKeys(function ($item) {
                         return [$item['context'] => $item];
                     })
                     ->all();
             })
-            ->schema(function (array $arguments): array {
-                $data = collect($this->getState())
+            ->schema(function (array $arguments, self $component): array {
+                $data = collect($component->getState())
                     ->where('filament_uuid', $arguments['uuid']);
 
                 return [
                     Tabs::make()
                         ->tabs(
-                            collect($this->getImageContexts())
-                                ->map(function (ImageContext $imageContext) use ($data): Tab {
+                            collect($component->getImageContexts())
+                                ->map(function (ImageContext $imageContext) use ($data, $component): Tab {
                                     $altTextField = TextInput::make($imageContext->getKey().'.alt_text') /** @phpstan-ignore method.notFound */
                                         ->label(__('filament-image-library::translations.forms.labels.alt_text'))
                                         ->helperText(__('filament-image-library::translations.forms.helper_texts.alt_text'))
@@ -398,7 +427,7 @@ class ImagePicker extends Field
                                         ->label($imageContext->getLabel())
                                         ->schema([
                                             $altTextField,
-                                            ...collect($this->getCustomPropertiesSchema() ?? [])
+                                            ...collect($component->getCustomPropertiesSchema() ?? [])
                                                 ->map(function (Component $component) use ($imageContext) {
                                                     return $this->prepareCustomPropertyFieldRecursively($component, $imageContext->getKey());
                                                 })
@@ -409,10 +438,10 @@ class ImagePicker extends Field
                         ),
                 ];
             })
-            ->action(function (array $arguments, array $data, Set $set): void {
+            ->action(function (array $arguments, array $data, Set $set, self $component): void {
                 $imageUuid = $arguments['uuid'];
 
-                $state = collect($this->getState())
+                $state = collect($component->getState())
                     ->map(function ($item) use ($imageUuid, $data) {
                         if ($item['filament_uuid'] !== $imageUuid) {
                             return $item;
@@ -443,17 +472,17 @@ class ImagePicker extends Field
             ->tooltip(__('filament-image-library::translations.tooltips.crop'))
             ->modalWidth(Width::Full)
             ->modalSubmitActionLabel(__('filament-image-library::translations.actions.crop'))
-            ->fillForm(function (array $arguments): array {
-                return collect($this->getState())
+            ->fillForm(function (array $arguments, self $component): array {
+                return collect($component->getState())
                     ->where('filament_uuid', $arguments['uuid'])
                     ->mapWithKeys(function ($item) {
                         return [$item['context'] => $item];
                     })
                     ->all();
             })
-            ->schema(function (Action $action, array $arguments, array $data): array {
+            ->schema(function (array $arguments, self $component): array {
                 $index = $arguments['uuid'];
-                $imageData = collect($this->getState())
+                $imageData = collect($component->getState())
                     ->firstWhere('filament_uuid', $index);
 
                 $sourceImage = ImageLibraryFacade::getSourceImageModel()::query()
@@ -463,7 +492,7 @@ class ImagePicker extends Field
                 return [
                     Tabs::make('contexts')
                         ->tabs(
-                            collect($this->getImageContexts())
+                            collect($component->getImageContexts())
                                 ->map(function (ImageContext $imageContext) use ($sourceImage) {
                                     return Tab::make($imageContext->getKey())
                                         ->label($imageContext->getLabel())
@@ -496,10 +525,10 @@ class ImagePicker extends Field
                         ->columnSpanFull(),
                 ];
             })
-            ->action(function (array $arguments, array $data, Set $set): void {
+            ->action(function (array $arguments, array $data, Set $set, self $component): void {
                 $imageUuid = $arguments['uuid'];
 
-                $state = collect($this->getState())
+                $state = collect($component->getState())
                     ->map(function ($item) use ($imageUuid, $data) {
                         if ($item['filament_uuid'] !== $imageUuid) {
                             return $item;
@@ -517,7 +546,7 @@ class ImagePicker extends Field
                     ->all();
 
                 $set(
-                    $this->getStatePath(false),
+                    $component->getStatePath(false),
                     $state,
                 );
             });
@@ -530,17 +559,17 @@ class ImagePicker extends Field
             ->icon(Heroicon::OutlinedLinkSlash)
             ->color('danger')
             ->tooltip(__('filament-image-library::translations.tooltips.detach'))
-            ->action(function (array $arguments, Set $set): void {
+            ->action(function (array $arguments, Set $set, self $component): void {
                 $imageUuid = $arguments['uuid'];
 
-                $state = collect($this->getState())
+                $state = collect($component->getState())
                     ->filter(function ($item) use ($imageUuid): bool {
                         return $item['filament_uuid'] !== $imageUuid;
                     })
                     ->all();
 
                 $set(
-                    $this->getStatePath(false),
+                    $component->getStatePath(false),
                     $state,
                 );
             });
@@ -557,6 +586,7 @@ class ImagePicker extends Field
     {
         if (is_a($component, Field::class)) {
             return $component
+                ->getClone()
                 ->statePath(Str::start($component->statePath, $imageContextKey.'.custom_properties.'));
         }
 
@@ -585,11 +615,11 @@ class ImagePicker extends Field
                         ->required()
                         ->hiddenLabel(),
                 ])
-                ->action(function (Action $action, $data, Set $set): void {
+                ->action(function (Action $action, $data, Set $set, self $component): void {
                     /** @var array<SourceImage> $sourceImages */
                     $sourceImages = Arr::wrap($data['source_images']['images'] ?? []);
 
-                    $this->addSourceImages($sourceImages, $set);
+                    $this->addSourceImages($sourceImages, $set, $component);
 
                     $action->success();
                 }),
@@ -613,25 +643,26 @@ class ImagePicker extends Field
                         ->required()
                         ->hiddenLabel(),
                 ])
-                ->action(function (Action $action, $data, Set $set): void {
+                ->action(function (Action $action, $data, Set $set, self $component): void {
                     /** @var array<SourceImage> $sourceImages */
                     $sourceImages = Arr::wrap($data['source_images'] ?? []);
 
-                    $this->addSourceImages($sourceImages, $set);
+                    $this->addSourceImages($sourceImages, $set, $component);
+
                     $action->success();
                 }),
         ];
     }
 
     /** @param array<SourceImage> $sourceImages */
-    private function addSourceImages(array $sourceImages, Set $set): void
+    private function addSourceImages(array $sourceImages, Set $set, self $component): void
     {
-        $state = $this->getState();
+        $state = $component->getState();
 
         foreach ($sourceImages as $sourceImage) {
             $filamentUuid = Str::uuid()->toString();
 
-            foreach ($this->getImageContexts() as $imageContext) {
+            foreach ($component->getImageContexts() as $imageContext) {
                 $state[] = [
                     'source_image_key' => $sourceImage->getKey(),
                     'source_image' => [
@@ -641,19 +672,47 @@ class ImagePicker extends Field
                     'context' => $imageContext->getKey(),
                     'alt_text' => [],
                     'crop_data' => [],
-                    'custom_properties' => [],
+                    'custom_properties' => $component->getCustomProperties() ?? [],
                     'filament_uuid' => $filamentUuid,
                 ];
             }
         }
 
-        if (! $this->getAllowsMultiple()) {
+        if (! $component->getAllowsMultiple()) {
             $state = [array_pop($state)];
         }
 
         $set(
-            $this->getStatePath(false),
+            $component->getStatePath(false),
             $state,
         );
+    }
+
+    private function mapModelToState(Image $image): array
+    {
+        return [
+            ImageLibraryFacade::getImageModelKeyName() => $image->getKey(),
+            'source_image_key' => $image->sourceImage->getKey(),
+            'source_image' => [
+                'alt_text' => ImageLibraryPlugin::get()->usesTranslatablePlugin() ? $image->sourceImage->getTranslations('alt_text') : $image->sourceImage->alt_text,
+            ],
+            ImageLibraryFacade::getImageModelSortOrderColumnName() => $image->{ImageLibraryFacade::getImageModelSortOrderColumnName()},
+            'context' => $image->context->getKey(),
+            'alt_text' => $image->getOriginal('alt_text'),
+            'crop_data' => collect($image->crop_data ?? [])
+                ->map(function (CropData|array|null $cropData) {
+                    if ($cropData instanceof CropData) {
+                        return $cropData->toArray();
+                    }
+
+                    return $cropData;
+                })
+                ->all(),
+            'custom_properties' => array_merge(
+                $image->custom_properties ?? [],
+                $this->getCustomProperties() ?? []
+            ),
+            'filament_uuid' => $image->custom_properties['filament_uuid'] ?? Str::uuid()->toString(),
+        ];
     }
 }
