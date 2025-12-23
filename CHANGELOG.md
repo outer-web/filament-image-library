@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 3.0.1 - 2025-12-23
+
+### Fixed
+
+-   Rebuilt the javascript dist
+
 ## 3.0.0 - 2025-12-22
 
 ### Changed
