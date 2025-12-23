@@ -8,11 +8,14 @@ use BackedEnum;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Component;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Str;
 use Livewire\WithPagination;
 use Outerweb\FilamentImageLibrary\Forms\Components\SourceImageUpload;
 use Outerweb\FilamentImageLibrary\ImageLibraryPlugin;
@@ -50,6 +53,11 @@ class ImageLibrary extends Page
         return ImageLibraryPlugin::get()->getNavigationSort();
     }
 
+    public static function getCustomPropertiesSchema(): ?array
+    {
+        return ImageLibraryPlugin::get()->getCustomPropertiesSchemaForSourceImages();
+    }
+
     public function getTitle(): string|Htmlable
     {
         return __('filament-image-library::translations.page.title');
@@ -76,22 +84,34 @@ class ImageLibrary extends Page
 
                 return [
                     'name' => $sourceImage->name,
-                    'alt_text' => $sourceImage->getTranslations('alt_text'),
+                    'alt_text' => ImageLibraryPlugin::get()->usesTranslatablePlugin() ? $sourceImage->getTranslations('alt_text') : $sourceImage->alt_text,
+                    'custom_properties' => $sourceImage->custom_properties,
                 ];
             })
-            ->schema([
-                TextInput::make('name')
-                    ->label(__('filament-image-library::translations.forms.labels.file_name'))
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('alt_text') /** @phpstan-ignore method.notFound */
+            ->schema(function () {
+                $altTextField = TextInput::make('alt_text') /** @phpstan-ignore method.notFound */
                     ->label(__('filament-image-library::translations.forms.labels.alt_text'))
                     ->helperText(__('filament-image-library::translations.forms.helper_texts.alt_text'))
                     ->nullable()
-                    ->maxLength(255)
-                    ->translatable(),
-                // TODO: Add ability to add custom property fields here
-            ])
+                    ->maxLength(255);
+
+                if (ImageLibraryPlugin::get()->usesTranslatablePlugin()) {
+                    $altTextField = $altTextField->translatable();
+                }
+
+                return [
+                    TextInput::make('name')
+                        ->label(__('filament-image-library::translations.forms.labels.file_name'))
+                        ->required()
+                        ->maxLength(255),
+                    $altTextField,
+                    ...collect($this->getCustomPropertiesSchema() ?? [])
+                        ->map(function (Component $component) {
+                            return $this->prepareCustomPropertyFieldRecursively($component);
+                        })
+                        ->all(),
+                ];
+            })
             ->modalSubmitActionLabel(__('filament-image-library::translations.actions.save'))
             ->successNotificationTitle(__('filament-image-library::translations.notifications.edit_source_image.success'))
             ->failureNotificationTitle(__('filament-image-library::translations.notifications.edit_source_image.failure'))
@@ -244,5 +264,19 @@ class ImageLibrary extends Page
                 ->latest()
                 ->paginate($this->itemsPerPage),
         ];
+    }
+
+    private function prepareCustomPropertyFieldRecursively(Component $component): Component
+    {
+        if (is_a($component, Field::class)) {
+            return $component
+                ->statePath(Str::start($component->getStatePath(false), 'custom_properties.'));
+        }
+
+        return $component->childComponents(
+            collect($component->getChildComponents())
+                ->map(fn (Component $childComponent) => $this->prepareCustomPropertyFieldRecursively($childComponent))
+                ->all()
+        );
     }
 }

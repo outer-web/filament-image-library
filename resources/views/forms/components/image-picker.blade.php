@@ -17,7 +17,7 @@
 		])
 		@if ($getSortable()) x-sort="$wire.mountAction('sort', { uuid: $item || 0, position: $position }, {{ Js::from($getAction('sort')->getContext()) }})" @endif
 	>
-		@forelse (collect($field->getState())->unique('filament_uuid')->sortBy('sort_order') as $image)
+		@forelse ($getRenderableImages() as $image)
 			@php
 				$sourceImage = collect($usedSourceImages)->firstWhere(
 				    fn($sourceImage): bool => $sourceImage->getKey() === $image['source_image_key'],

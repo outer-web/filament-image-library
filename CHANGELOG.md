@@ -2,6 +2,13 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 3.0.2 - 2025-12-23
+
+### Fixed
+
+-   Fixed issues with state not updating in certain conditions
+-   Fixed issue with translatable fields plugin dependency
+
 ## 3.0.1 - 2025-12-23
 
 ### Fixed

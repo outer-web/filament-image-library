@@ -12,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
@@ -21,6 +22,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use LogicException;
+use Outerweb\FilamentImageLibrary\ImageLibraryPlugin;
 use Outerweb\ImageLibrary\Contracts\ConfiguresBreakpoints;
 use Outerweb\ImageLibrary\Entities\CropData;
 use Outerweb\ImageLibrary\Entities\ImageContext;
@@ -44,7 +46,7 @@ class ImagePicker extends Field
     {
         $this->belowContent(Schema::center($this->getFieldActions()));
 
-        $this->afterStateHydrated(function (): void {
+        $this->afterStateHydrated(function (Set $set): void {
             $record = $this->getModelInstance();
             $relationshipName = $this->getName();
 
@@ -75,7 +77,7 @@ class ImagePicker extends Field
                         ImageLibraryFacade::getImageModelKeyName() => $image->getKey(),
                         'source_image_key' => $image->sourceImage->getKey(),
                         'source_image' => [
-                            'alt_text' => $image->sourceImage->getTranslations('alt_text'),
+                            'alt_text' => ImageLibraryPlugin::get()->usesTranslatablePlugin() ? $image->sourceImage->getTranslations('alt_text') : $image->sourceImage->alt_text,
                         ],
                         ImageLibraryFacade::getImageModelSortOrderColumnName() => $image->{ImageLibraryFacade::getImageModelSortOrderColumnName()},
                         'context' => $image->context->getKey(),
@@ -135,7 +137,10 @@ class ImagePicker extends Field
                 ->flatten(1)
                 ->all();
 
-            $this->state($images);
+            $set(
+                $this->getStatePath(false),
+                $images,
+            );
         });
 
         $this->dehydrated(false);
@@ -216,6 +221,14 @@ class ImagePicker extends Field
             $this->cropAction(),
             $this->detachAction(),
         ]);
+    }
+
+    public function getRenderableImages(): array
+    {
+        return collect($this->getState())
+            ->unique('filament_uuid')
+            ->sortBy(ImageLibraryFacade::getImageModelSortOrderColumnName())
+            ->all();
     }
 
     public function sortable(bool|Closure $condition = true): static
@@ -303,7 +316,7 @@ class ImagePicker extends Field
     public function sortAction(): Action
     {
         return Action::make('sort')
-            ->action(function (array $arguments): void {
+            ->action(function (array $arguments, Set $set): void {
                 $uuid = $arguments['uuid'];
                 $position = $arguments['position'];
 
@@ -336,7 +349,10 @@ class ImagePicker extends Field
                     ->sortBy(ImageLibraryFacade::getImageModelSortOrderColumnName())
                     ->all();
 
-                $this->state($state);
+                $set(
+                    $this->getStatePath(false),
+                    $state,
+                );
             });
     }
 
@@ -364,19 +380,24 @@ class ImagePicker extends Field
                         ->tabs(
                             collect($this->getImageContexts())
                                 ->map(function (ImageContext $imageContext) use ($data): Tab {
+                                    $altTextField = TextInput::make($imageContext->getKey().'.alt_text') /** @phpstan-ignore method.notFound */
+                                        ->label(__('filament-image-library::translations.forms.labels.alt_text'))
+                                        ->helperText(__('filament-image-library::translations.forms.helper_texts.alt_text'))
+                                        ->nullable()
+                                        ->maxLength(255);
+
+                                    if (ImageLibraryPlugin::get()->usesTranslatablePlugin()) {
+                                        $altTextField = $altTextField->translatable(
+                                            modifyLocalizedFieldUsing: function (TextInput $field, string $locale) use ($data) {
+                                                $field->placeholder($data['source_image']['alt_text'][$locale] ?? null);
+                                            }
+                                        );
+                                    }
+
                                     return Tab::make($imageContext->getKey())
                                         ->label($imageContext->getLabel())
                                         ->schema([
-                                            TextInput::make($imageContext->getKey().'.alt_text') /** @phpstan-ignore method.notFound */
-                                                ->label(__('filament-image-library::translations.forms.labels.alt_text'))
-                                                ->helperText(__('filament-image-library::translations.forms.helper_texts.alt_text'))
-                                                ->nullable()
-                                                ->maxLength(255)
-                                                ->translatable(
-                                                    modifyLocalizedFieldUsing: function (TextInput $field, string $locale) use ($data) {
-                                                        $field->placeholder($data['source_image']['alt_text'][$locale] ?? null);
-                                                    }
-                                                ),
+                                            $altTextField,
                                             ...collect($this->getCustomPropertiesSchema() ?? [])
                                                 ->map(function (Component $component) use ($imageContext) {
                                                     return $this->prepareCustomPropertyFieldRecursively($component, $imageContext->getKey());
@@ -388,7 +409,7 @@ class ImagePicker extends Field
                         ),
                 ];
             })
-            ->action(function (Action $action, array $arguments, array $data): void {
+            ->action(function (array $arguments, array $data, Set $set): void {
                 $imageUuid = $arguments['uuid'];
 
                 $state = collect($this->getState())
@@ -406,7 +427,10 @@ class ImagePicker extends Field
                     })
                     ->all();
 
-                $this->state($state);
+                $set(
+                    $this->getStatePath(false),
+                    $state,
+                );
             });
     }
 
@@ -472,7 +496,7 @@ class ImagePicker extends Field
                         ->columnSpanFull(),
                 ];
             })
-            ->action(function (Action $action, array $arguments, array $data): void {
+            ->action(function (array $arguments, array $data, Set $set): void {
                 $imageUuid = $arguments['uuid'];
 
                 $state = collect($this->getState())
@@ -492,7 +516,10 @@ class ImagePicker extends Field
                     })
                     ->all();
 
-                $this->state($state);
+                $set(
+                    $this->getStatePath(false),
+                    $state,
+                );
             });
     }
 
@@ -503,7 +530,7 @@ class ImagePicker extends Field
             ->icon(Heroicon::OutlinedLinkSlash)
             ->color('danger')
             ->tooltip(__('filament-image-library::translations.tooltips.detach'))
-            ->action(function (Action $action, array $arguments): void {
+            ->action(function (array $arguments, Set $set): void {
                 $imageUuid = $arguments['uuid'];
 
                 $state = collect($this->getState())
@@ -512,7 +539,10 @@ class ImagePicker extends Field
                     })
                     ->all();
 
-                $this->state($state);
+                $set(
+                    $this->getStatePath(false),
+                    $state,
+                );
             });
     }
 
@@ -555,11 +585,11 @@ class ImagePicker extends Field
                         ->required()
                         ->hiddenLabel(),
                 ])
-                ->action(function (Action $action, $data): void {
+                ->action(function (Action $action, $data, Set $set): void {
                     /** @var array<SourceImage> $sourceImages */
                     $sourceImages = Arr::wrap($data['source_images']['images'] ?? []);
 
-                    $this->addSourceImages($sourceImages);
+                    $this->addSourceImages($sourceImages, $set);
 
                     $action->success();
                 }),
@@ -583,19 +613,18 @@ class ImagePicker extends Field
                         ->required()
                         ->hiddenLabel(),
                 ])
-                ->action(function (Action $action, $data): void {
+                ->action(function (Action $action, $data, Set $set): void {
                     /** @var array<SourceImage> $sourceImages */
                     $sourceImages = Arr::wrap($data['source_images'] ?? []);
 
-                    $this->addSourceImages($sourceImages);
-
+                    $this->addSourceImages($sourceImages, $set);
                     $action->success();
                 }),
         ];
     }
 
     /** @param array<SourceImage> $sourceImages */
-    private function addSourceImages(array $sourceImages): void
+    private function addSourceImages(array $sourceImages, Set $set): void
     {
         $state = $this->getState();
 
@@ -606,7 +635,7 @@ class ImagePicker extends Field
                 $state[] = [
                     'source_image_key' => $sourceImage->getKey(),
                     'source_image' => [
-                        'alt_text' => $sourceImage->getTranslations('alt_text'),
+                        'alt_text' => ImageLibraryPlugin::get()->usesTranslatablePlugin() ? $sourceImage->getTranslations('alt_text') : $sourceImage->alt_text,
                     ],
                     ImageLibraryFacade::getImageModelSortOrderColumnName() => count($state) + 1,
                     'context' => $imageContext->getKey(),
@@ -622,6 +651,9 @@ class ImagePicker extends Field
             $state = [array_pop($state)];
         }
 
-        $this->state($state);
+        $set(
+            $this->getStatePath(false),
+            $state,
+        );
     }
 }

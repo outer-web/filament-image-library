@@ -10,6 +10,7 @@ use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Icons\Heroicon;
 use Outerweb\ImageLibrary\Entities\AspectRatio;
 use Outerweb\ImageLibrary\Models\SourceImage;
@@ -56,7 +57,7 @@ class ImageCropper extends Field
             $this->flipVerticalAction(),
         ]);
 
-        $this->afterStateHydrated(function (?array $state): void {
+        $this->afterStateHydrated(function (?array $state, Set $set): void {
             $state ??= [];
 
             $sourceImage = $this->getSourceImage();
@@ -76,15 +77,18 @@ class ImageCropper extends Field
                 $x = (int) round(($sourceImage->width - $width) / 2);
             }
 
-            $this->state(array_merge([
-                'x' => $state['x'] ?? $x,
-                'y' => $state['y'] ?? $y,
-                'width' => $state['width'] ?? $width,
-                'height' => $state['height'] ?? $height,
-                'rotate' => $state['rotate'] ?? 0,
-                'scaleX' => $state['scaleX'] ?? 1,
-                'scaleY' => $state['scaleY'] ?? 1,
-            ]));
+            $set(
+                $this->getStatePath(false),
+                array_merge([
+                    'x' => $state['x'] ?? $x,
+                    'y' => $state['y'] ?? $y,
+                    'width' => $state['width'] ?? $width,
+                    'height' => $state['height'] ?? $height,
+                    'rotate' => $state['rotate'] ?? 0,
+                    'scaleX' => $state['scaleX'] ?? 1,
+                    'scaleY' => $state['scaleY'] ?? 1,
+                ]),
+            );
         });
 
         $this->dehydrateStateUsing(function ($state) {
@@ -132,7 +136,7 @@ class ImageCropper extends Field
             ->suffix(__('filament-image-library::translations.forms.suffixes.width'))
             ->hiddenLabel()
             ->live()
-            ->afterStateUpdated(function ($state): void {
+            ->afterStateUpdated(function (array $state, Set $set): void {
                 $sourceImage = $this->getSourceImage();
 
                 if ($state < 0) {
@@ -143,9 +147,12 @@ class ImageCropper extends Field
                     $state = $sourceImage->width - $this->getState()['x'];
                 }
 
-                $this->state(array_merge($this->getState(), [
-                    'width' => $state,
-                ]));
+                $set(
+                    $this->getStatePath(false),
+                    array_merge($this->getState(), [
+                        'width' => $state,
+                    ]),
+                );
             });
     }
 
@@ -157,7 +164,7 @@ class ImageCropper extends Field
             ->suffix(__('filament-image-library::translations.forms.suffixes.height'))
             ->hiddenLabel()
             ->live()
-            ->afterStateUpdated(function ($state): void {
+            ->afterStateUpdated(function (array $state, Set $set): void {
                 $sourceImage = $this->getSourceImage();
 
                 if ($state < 0) {
@@ -168,9 +175,12 @@ class ImageCropper extends Field
                     $state = $sourceImage->height - $this->getState()['y'];
                 }
 
-                $this->state(array_merge($this->getState(), [
-                    'height' => $state,
-                ]));
+                $set(
+                    $this->getStatePath(false),
+                    array_merge($this->getState(), [
+                        'height' => $state,
+                    ]),
+                );
             });
     }
 
@@ -182,7 +192,7 @@ class ImageCropper extends Field
             ->suffix(__('filament-image-library::translations.forms.suffixes.x'))
             ->hiddenLabel()
             ->live()
-            ->afterStateUpdated(function ($state): void {
+            ->afterStateUpdated(function (array $state, Set $set): void {
                 $sourceImage = $this->getSourceImage();
 
                 if ($state < 0) {
@@ -193,9 +203,12 @@ class ImageCropper extends Field
                     $state = $sourceImage->width - $this->getState()['width'];
                 }
 
-                $this->state(array_merge($this->getState(), [
-                    'x' => $state,
-                ]));
+                $set(
+                    $this->getStatePath(false),
+                    array_merge($this->getState(), [
+                        'x' => $state,
+                    ]),
+                );
             });
     }
 
@@ -207,7 +220,7 @@ class ImageCropper extends Field
             ->suffix(__('filament-image-library::translations.forms.suffixes.y'))
             ->hiddenLabel()
             ->live()
-            ->afterStateUpdated(function ($state): void {
+            ->afterStateUpdated(function (array $state, Set $set): void {
                 $sourceImage = $this->getSourceImage();
 
                 if ($state < 0) {
@@ -218,9 +231,12 @@ class ImageCropper extends Field
                     $state = $sourceImage->height - $this->getState()['height'];
                 }
 
-                $this->state(array_merge($this->getState(), [
-                    'y' => $state,
-                ]));
+                $set(
+                    $this->getStatePath(false),
+                    array_merge($this->getState(), [
+                        'y' => $state,
+                    ]),
+                );
             });
     }
 

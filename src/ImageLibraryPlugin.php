@@ -12,6 +12,7 @@ use Filament\Support\Concerns\EvaluatesClosures;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Config;
 use Outerweb\FilamentImageLibrary\Pages\ImageLibrary as ImageLibraryPage;
+use Outerweb\FilamentTranslatableFields\TranslatableFieldsPlugin;
 use UnitEnum;
 
 class ImageLibraryPlugin implements Plugin
@@ -31,6 +32,8 @@ class ImageLibraryPlugin implements Plugin
     protected int|Closure|null $minUploadSize = null;
 
     protected int|Closure|null $maxUploadSize = null;
+
+    protected array|Closure|null $customPropertiesSchemaForSourceImages = null;
 
     public static function make(): static
     {
@@ -149,6 +152,23 @@ class ImageLibraryPlugin implements Plugin
     public function getMaxUploadSize(): int
     {
         return $this->evaluate($this->maxUploadSize, $this->getEvaluationInjections()) ?? PHP_INT_MAX;
+    }
+
+    public function customPropertiesSchemaForSourceImages(array|Closure|null $schema): self
+    {
+        $this->customPropertiesSchemaForSourceImages = $schema;
+
+        return $this;
+    }
+
+    public function getCustomPropertiesSchemaForSourceImages(): ?array
+    {
+        return $this->evaluate($this->customPropertiesSchemaForSourceImages, $this->getEvaluationInjections());
+    }
+
+    public function usesTranslatablePlugin(): bool
+    {
+        return app('filament')->hasPlugin(app(TranslatableFieldsPlugin::class)->getId());
     }
 
     private function getEvaluationInjections(): array
