@@ -4,7 +4,7 @@
 	class="@container"
 >
 	<div class="grid grid-cols-1 @lg:grid-cols-2 @2xl:grid-cols-3 @4xl:grid-cols-4 gap-4">
-		@foreach ($getImagesByUniqueFilamentUuids() as $image)
+		@forelse ($getImagesByUniqueFilamentUuids() as $image)
 			<div @class([
 				'rounded-xl overflow-hidden shadow relative',
 				'bg-white dark:bg-gray-900 ring',
@@ -44,6 +44,10 @@
 					</div>
 				</div>
 			</div>
-		@endforeach
+		@empty
+			<p class="fi-in-placeholder">
+				{{ $getPlaceholder() }}
+			</p>
+		@endforelse
 	</div>
 </x-dynamic-component>

@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 3.0.4 - 2026-01-7
+
+### Added
+
+-   Render ImageEntry placeholder if no images are selected
+
 ## 3.0.3 - 2025-12-23
 
 ### Fixed
