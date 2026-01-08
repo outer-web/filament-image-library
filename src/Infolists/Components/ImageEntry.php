@@ -23,13 +23,15 @@ class ImageEntry extends Entry
 
     protected ?Closure $modifyQueryUsing = null;
 
+    protected string|Closure|null $relationship = null;
+
     public function setUp(): void
     {
         parent::setUp();
 
         $this->state(function (): Collection {
-            $record = $this->getModelInstance();
-            $relationshipName = $this->getName();
+            $record = $this->getRecord();
+            $relationshipName = $this->getRelationship();
 
             if ($record->hasAttribute($relationshipName) || (! $record->isRelation($relationshipName))) {
                 throw new LogicException("The relationship [{$relationshipName}] does not exist on the model [{$this->getModel()}].");
@@ -65,6 +67,18 @@ class ImageEntry extends Entry
             ->unique(function (Image $image) {
                 return $image->custom_properties['filament_uuid'] ?? null;
             });
+    }
+
+    public function relationship(string|Closure|null $relationship): static
+    {
+        $this->relationship = $relationship;
+
+        return $this;
+    }
+
+    public function getRelationship(): string
+    {
+        return $this->evaluate($this->relationship) ?? $this->getName();
     }
 
     public function viewAction(): Action

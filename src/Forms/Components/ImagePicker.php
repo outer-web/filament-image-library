@@ -46,13 +46,15 @@ class ImagePicker extends Field
 
     protected array|Closure $usingCustomProperties = [];
 
+    protected string|Closure|null $relationship = null;
+
     public function setUp(): void
     {
         $this->belowContent(Schema::center($this->getFieldActions()));
 
         $this->afterStateHydrated(function (Set $set): void {
-            $record = $this->getModelInstance();
-            $relationshipName = $this->getName();
+            $record = $this->getRecord();
+            $relationshipName = $this->getRelationship();
 
             if ($record->hasAttribute($relationshipName) || (! $record->isRelation($relationshipName))) {
                 throw new LogicException("The relationship [{$relationshipName}] does not exist on the model [{$this->getModel()}].");
@@ -141,8 +143,8 @@ class ImagePicker extends Field
                 $this->modifyQueryUsing,
                 [
                     'query' => $query,
-                    'record' => $this->getModelInstance(),
-                    'relationshipName' => $this->getName(),
+                    'record' => $this->getRecord(),
+                    'relationshipName' => $this->getRelationship(),
                 ]
             );
         }
@@ -193,7 +195,11 @@ class ImagePicker extends Field
                         ->where(ImageLibraryFacade::getImageModelKeyName(), $imageKey)
                         ->firstOrFail();
 
-                    $image->update($imageData);
+                    $image->fill($imageData);
+
+                    if ($image->isDirty()) {
+                        $image->save();
+                    }
 
                     $images[] = $image;
 
@@ -205,15 +211,15 @@ class ImagePicker extends Field
                     ->first();
 
                 /** @phpstan-ignore-next-line */
-                $images[] = $this->getModelInstance()->attachImage(
+                $images[] = $this->getRecord()->attachImage(
                     $sourceImage,
                     $imageData,
-                    $this->getName()
+                    $this->getRelationship()
                 );
             }
 
-            $record = $this->getModelInstance();
-            $relationshipName = $this->getName();
+            $record = $this->getRecord();
+            $relationshipName = $this->getRelationship();
 
             $query = $record->{$relationshipName}()->whereNotIn(
                 ImageLibraryFacade::getImageModelKeyName(),
@@ -282,6 +288,18 @@ class ImagePicker extends Field
     public function getCustomPropertiesSchema(): ?array
     {
         return $this->evaluate($this->customPropertiesSchema);
+    }
+
+    public function relationship(string|Closure|null $relationship): static
+    {
+        $this->relationship = $relationship;
+
+        return $this;
+    }
+
+    public function getRelationship(): string
+    {
+        return $this->evaluate($this->relationship) ?? $this->getName();
     }
 
     public function getState(): ?array

@@ -2,7 +2,14 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
-## 3.0.4 - 2026-01-7
+## 3.1.0 - 2026-01-08
+
+### Added
+
+-   Ability to set relationship on ImagePicker component
+-   Ability to set relationship on ImageEntry component
+
+## 3.0.4 - 2026-01-07
 
 ### Added
 
