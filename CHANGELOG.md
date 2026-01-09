@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 3.2.1 - 2026-01-09
+
+### Fixed
+
+-   Fixed bug in saveImages where transaction prevented attached images from being saved due to them being deleted right after
+
 ## 3.2.0 - 2026-01-09
 
 ### Added

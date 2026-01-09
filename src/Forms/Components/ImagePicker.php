@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Outerweb\FilamentImageLibrary\Forms\Components;
 
 use Closure;
-use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\Concerns\CanLimitItemsLength;
@@ -22,7 +21,6 @@ use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use LogicException;
 use Outerweb\FilamentImageLibrary\ImageLibraryPlugin;
@@ -185,78 +183,68 @@ class ImagePicker extends Field
     {
         $images = [];
 
-        try {
-            DB::beginTransaction();
+        foreach ($state as $imageData) {
+            $imageData = collect($imageData)
+                ->undot()
+                ->all();
+            $imageKey = $imageData[ImageLibraryFacade::getImageModelKeyName()] ?? null;
+            $sourceImageKey = $imageData['source_image_key'] ?? null;
 
-            foreach ($state as $imageData) {
-                $imageData = collect($imageData)
-                    ->undot()
-                    ->all();
-                $imageKey = $imageData[ImageLibraryFacade::getImageModelKeyName()] ?? null;
-                $sourceImageKey = $imageData['source_image_key'] ?? null;
-
-                $uuid = $imageData['filament_uuid'] ?? null;
-                $imageData['custom_properties'] = array_merge(
-                    $imageData['custom_properties'] ?? [],
-                    ['filament_uuid' => $uuid],
-                    $this->getCustomProperties() ?? []
-                );
-
-                unset(
-                    $imageData[ImageLibraryFacade::getImageModelKeyName()],
-                    $imageData['source_image'],
-                    $imageData['filament_uuid'],
-                    $imageData['source_image_key'],
-                );
-
-                if (! is_null($imageKey)) {
-                    $image = ImageLibraryFacade::getImageModel()::query()
-                        ->where(ImageLibraryFacade::getImageModelKeyName(), $imageKey)
-                        ->firstOrFail();
-
-                    $image->fill($imageData);
-
-                    if ($image->isDirty()) {
-                        $image->save();
-                    }
-
-                    $images[] = $image;
-
-                    continue;
-                }
-
-                $sourceImage = ImageLibraryFacade::getSourceImageModel()::query()
-                    ->where(ImageLibraryFacade::getSourceImageModelKeyName(), $sourceImageKey)
-                    ->first();
-
-                /** @phpstan-ignore-next-line */
-                $images[] = $this->getRecord()->attachImage(
-                    $sourceImage,
-                    $imageData,
-                    $this->getRelationship()
-                );
-            }
-
-            $record = $this->getRecord();
-            $relationshipName = $this->getRelationship();
-
-            $query = $record->{$relationshipName}()->whereNotIn(
-                ImageLibraryFacade::getImageModelKeyName(),
-                collect($images)->map(fn (Image $image) => $image->getKey())->all(),
+            $uuid = $imageData['filament_uuid'] ?? null;
+            $imageData['custom_properties'] = array_merge(
+                $imageData['custom_properties'] ?? [],
+                ['filament_uuid' => $uuid],
+                $this->getCustomProperties() ?? []
             );
 
-            $query = $this->modifyQuery($query);
+            unset(
+                $imageData[ImageLibraryFacade::getImageModelKeyName()],
+                $imageData['source_image'],
+                $imageData['filament_uuid'],
+                $imageData['source_image_key'],
+            );
 
-            $query
-                ->cursor()
-                ->each(fn (Image $image): ?bool => $image->delete());
+            if (! is_null($imageKey)) {
+                $image = ImageLibraryFacade::getImageModel()::query()
+                    ->where(ImageLibraryFacade::getImageModelKeyName(), $imageKey)
+                    ->firstOrFail();
 
-            DB::commit();
-        } catch (Exception $exception) {
-            DB::rollBack();
+                $image->fill($imageData);
 
-            throw $exception;
+                if ($image->isDirty()) {
+                    $image->save();
+                }
+
+                $images[] = $image;
+
+                continue;
+            }
+
+            $sourceImage = ImageLibraryFacade::getSourceImageModel()::query()
+                ->where(ImageLibraryFacade::getSourceImageModelKeyName(), $sourceImageKey)
+                ->first();
+
+            /** @phpstan-ignore-next-line */
+            $images[] = $this->getRecord()->attachImage(
+                $sourceImage,
+                $imageData,
+                $this->getRelationship()
+            );
         }
+
+        $record = $this->getRecord();
+        $relationshipName = $this->getRelationship();
+
+        $query = $record->{$relationshipName}()->whereNotIn(
+            ImageLibraryFacade::getImageModelKeyName(),
+            collect($images)->map(fn (Image $image) => $image->getKey())->all(),
+        );
+
+        $query = $this->modifyQuery($query);
+
+        $query
+            ->cursor()
+            ->each(fn (Image $image): ?bool => $image->delete());
 
         return collect($images)
             ->map(function (Image $image) {
