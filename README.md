@@ -234,6 +234,31 @@ ImagePicker::make('images')
 
 This will render the defined fields in the edit modal of each selected image. They will automatically be saved to the `custom_properties` column of the image.
 
+#### Validation
+
+You can add validation rules to the `ImagePicker` component like any other Filament form component:
+
+```php
+use Outerweb\FilamentImageLibrary\Forms\Components\ImagePicker;
+
+ImagePicker::make('images')
+    ->imageContext('article_image')
+    ->required(),
+```
+
+You can also use the `minItems` and `maxItems` methods to restrict the number of selected images:
+
+```php
+use Outerweb\FilamentImageLibrary\Forms\Components\ImagePicker;
+
+ImagePicker::make('images')
+    ->imageContext('article_image')
+    ->minItems(1)
+    ->maxItems(5),
+```
+
+Note that the `maxItems` method will be overridden if the context only allows a single image.
+
 ### Infolists
 
 You can use the `ImageEntry` infolist entry to display the selected images in an infolist:

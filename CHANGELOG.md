@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 3.2.0 - 2026-01-09
+
+### Added
+
+-   Ability to set minItems and maxItems on ImagePicker component
+
 ## 3.1.0 - 2026-01-08
 
 ### Added

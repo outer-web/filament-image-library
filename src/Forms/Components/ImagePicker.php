@@ -8,6 +8,7 @@ use Closure;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Builder\Block;
+use Filament\Forms\Components\Concerns\CanLimitItemsLength;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
@@ -34,6 +35,8 @@ use Outerweb\ImageLibrary\Models\SourceImage;
 
 class ImagePicker extends Field
 {
+    use CanLimitItemsLength;
+
     protected string $view = 'filament-image-library::forms.components.image-picker';
 
     protected array|string|Closure|null $imageContexts = null;
@@ -160,6 +163,22 @@ class ImagePicker extends Field
         }
 
         return $query;
+    }
+
+    public function getMaxItems(): ?int
+    {
+        if (! $this->getAllowsMultiple()) {
+            return 1;
+        }
+
+        return $this->evaluate($this->maxItems);
+    }
+
+    public function getItemsCount(): int
+    {
+        return collect($this->getState() ?? [])
+            ->unique('filament_uuid')
+            ->count();
     }
 
     public function saveImages(array $state): array
