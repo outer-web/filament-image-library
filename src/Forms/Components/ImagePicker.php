@@ -207,17 +207,19 @@ class ImagePicker extends Field
             if (! is_null($imageKey)) {
                 $image = ImageLibraryFacade::getImageModel()::query()
                     ->where(ImageLibraryFacade::getImageModelKeyName(), $imageKey)
-                    ->firstOrFail();
+                    ->first();
 
-                $image->fill($imageData);
+                if (! is_null($image)) {
+                    $image->fill($imageData);
 
-                if ($image->isDirty()) {
-                    $image->save();
+                    if ($image->isDirty()) {
+                        $image->save();
+                    }
+
+                    $images[] = $image;
+
+                    continue;
                 }
-
-                $images[] = $image;
-
-                continue;
             }
 
             $sourceImage = ImageLibraryFacade::getSourceImageModel()::query()

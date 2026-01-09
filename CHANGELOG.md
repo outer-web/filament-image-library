@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 3.2.3 - 2026-01-09
+
+### Fixed
+
+-   Attach image as new if imageKey is not found instead of using firstOrFail which throws an exception
+
 ## 3.2.2 - 2026-01-09
 
 ### Fixed
