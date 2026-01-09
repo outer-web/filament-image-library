@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 3.2.2 - 2026-01-09
+
+### Fixed
+
+-   Fixed several bugs for cropper
+
 ## 3.2.1 - 2026-01-09
 
 ### Fixed

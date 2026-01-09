@@ -1,5 +1,5 @@
 <div x-data="{
-    state: $wire.$entangle('{{ $getStatePath() }}'),
+    state: $wire.$entangle('{{ $getStatePath() }}').live,
     cropper: null,
     observer: null,
     initialStateSet: false,
@@ -22,7 +22,7 @@
 
         this.observer.observe(this.$el);
 
-        $watch('state', () => {
+        $watch('state', (value) => {
             if (this.debounceSyncState) {
                 clearTimeout(this.debounceSyncState);
             }
@@ -30,16 +30,16 @@
             this.debounceSyncState = setTimeout(() => {
                 if (this.cropper && this.initialStateSet) {
                     this.cropper.setData({
-                        width: this.state.width,
-                        height: this.state.height,
-                        x: this.state.x,
-                        y: this.state.y,
-                        rotate: this.state.rotate,
-                        scaleX: this.state.scaleX,
-                        scaleY: this.state.scaleY,
+                        width: parseInt(value.width),
+                        height: parseInt(value.height),
+                        x: parseInt(value.x),
+                        y: parseInt(value.y),
+                        rotate: parseInt(value.rotate),
+                        scaleX: parseInt(value.scaleX),
+                        scaleY: parseInt(value.scaleY),
                     });
                 }
-            }, 300);
+            }, 500);
         });
     },
 
