@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 3.2.4 - 2026-01-09
+
+### Fixed
+
+-   Fixed bug where image picker would not work on new records that were not yet saved
+
 ## 3.2.3 - 2026-01-09
 
 ### Fixed

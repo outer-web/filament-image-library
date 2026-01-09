@@ -54,7 +54,7 @@ class ImagePicker extends Field
         $this->belowContent(Schema::center($this->getFieldActions()));
 
         $this->afterStateHydrated(function (Set $set): void {
-            $record = $this->getRecord();
+            $record = $this->getModelInstance();
             $relationshipName = $this->getRelationship();
 
             if ($record->hasAttribute($relationshipName) || (! $record->isRelation($relationshipName))) {
@@ -144,7 +144,7 @@ class ImagePicker extends Field
                 $this->modifyQueryUsing,
                 [
                     'query' => $query,
-                    'record' => $this->getRecord(),
+                    'record' => $this->getModelInstance(),
                     'relationshipName' => $this->getRelationship(),
                 ]
             );
