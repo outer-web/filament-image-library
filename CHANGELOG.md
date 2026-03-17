@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 3.3.1 - 2026-03-17
+
+### Added
+
+-   Added support for Laravel 13.
+
 ## 3.3.0 - 2026-01-20
 
 ### Added
