@@ -30,7 +30,7 @@
         "laravel/pint": "^1.14",
         "nunomaduro/collision": "^8.8",
         "larastan/larastan": "^3.0",
-        "orchestra/testbench": "^10.0.0||^9.0.0",
+        "orchestra/testbench": "^9.0.0||^10.0.0||^11.0.0",
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-arch": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.0",
@@ -45,6 +45,7 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "Outerweb\\FilamentImageLibrary\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
