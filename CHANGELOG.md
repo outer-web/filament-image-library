@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 3.3.3 - 2026-04-20
+
+### Fixed
+
+-   Fixed image picker pagination.
+
 ## 3.3.2 - 2026-04-20
 
 ### Fixed

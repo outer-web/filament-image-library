@@ -20,8 +20,6 @@ class SourceImageSelect extends Field
 {
     public int $itemsPerPage = 12;
 
-    public int $page = 1;
-
     protected string $view = 'filament-image-library::forms.components.source-image-select';
 
     protected bool|Closure $acceptsMultiple = false;
@@ -35,11 +33,22 @@ class SourceImageSelect extends Field
         parent::setUp();
 
         $this->afterStateHydrated(function (SourceImageSelect $component, array|SourceImage|null $state): void {
+            $images = is_array($state) ? ($state['images'] ?? $state) : [$state];
+
             $component->state([
-                'images' => collect($state ?? [])
-                    ->filter(fn ($item): bool => $item instanceof SourceImage)
+                'images' => collect($images)
+                    ->map(function ($item) {
+                        if ($item instanceof SourceImage) {
+                            return $item->getKey();
+                        }
+
+                        return $item;
+                    })
+                    ->filter(fn ($item): bool => ! blank($item))
+                    ->values()
                     ->all(),
-                'search' => '',
+                'search' => is_array($state) ? ($state['search'] ?? '') : '',
+                'page' => is_array($state) ? max(1, (int) ($state['page'] ?? 1)) : 1,
             ]);
         });
 
@@ -74,7 +83,7 @@ class SourceImageSelect extends Field
                     ->placeholder(__('filament-image-library::translations.forms.placeholders.search'))
                     ->columnSpanFull()
                     ->afterStateUpdated(function (): void {
-                        $this->page = 1;
+                        $this->setPage(1);
                     })
                     ->default(''),
             ],
@@ -176,13 +185,13 @@ class SourceImageSelect extends Field
 
     public function nextPage(): void
     {
-        $this->page++;
+        $this->setPage($this->getPage() + 1);
     }
 
     public function previousPage(): void
     {
-        if ($this->page > 1) {
-            $this->page--;
+        if ($this->getPage() > 1) {
+            $this->setPage($this->getPage() - 1);
         }
     }
 
@@ -193,21 +202,41 @@ class SourceImageSelect extends Field
 
     public function hasPreviousPage(): bool
     {
-        return $this->page > 1;
+        return $this->getPage() > 1;
     }
 
     public function getSourceImages(): LengthAwarePaginator
     {
+        $search = $this->getSearch();
+
         return ImageLibrary::getSourceImageModel()::query()
             ->whereIn('disk', array_keys($this->getDisks()))
-            ->when($this->getState()['search'] !== '', function ($query) {
-                $query->where('name', 'like', '%'.$this->getState()['search'].'%')
-                    ->orWhere('alt_text', 'like', '%'.$this->getState()['search'].'%');
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where('name', 'like', '%'.$search.'%')
+                    ->orWhere('alt_text', 'like', '%'.$search.'%');
             })
             ->latest()
             ->paginate(
                 perPage: $this->itemsPerPage,
-                page: $this->page
+                page: $this->getPage()
             );
+    }
+
+    public function getPage(): int
+    {
+        return max(1, (int) ($this->getState()['page'] ?? 1));
+    }
+
+    public function getSearch(): string
+    {
+        return (string) ($this->getState()['search'] ?? '');
+    }
+
+    protected function setPage(int $page): void
+    {
+        $this->state([
+            ...($this->getState() ?? []),
+            'page' => max(1, $page),
+        ]);
     }
 }
