@@ -2,6 +2,12 @@
 
 All notable changes to `filament-image-library` will be documented in this file.
 
+## 3.3.2 - 2026-04-20
+
+### Fixed
+
+-   Use latest() in the query to fetch images for the ImagePicker.
+
 ## 3.3.1 - 2026-03-17
 
 ### Added

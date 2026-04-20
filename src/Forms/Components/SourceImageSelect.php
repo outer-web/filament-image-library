@@ -204,6 +204,7 @@ class SourceImageSelect extends Field
                 $query->where('name', 'like', '%'.$this->getState()['search'].'%')
                     ->orWhere('alt_text', 'like', '%'.$this->getState()['search'].'%');
             })
+            ->latest()
             ->paginate(
                 perPage: $this->itemsPerPage,
                 page: $this->page
